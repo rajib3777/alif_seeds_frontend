@@ -7,6 +7,8 @@ const ShoppingCartIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
 );
 
+import api from '../api';
+
 export default function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -17,9 +19,8 @@ export default function ProductDetails() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/products/${id}/`)
-      .then(res => res.json())
-      .then(data => { setProduct(data); setLoading(false); })
+    api.get(`products/${id}/`)
+      .then(res => { setProduct(res.data); setLoading(false); })
       .catch(() => setLoading(false));
   }, [id]);
 

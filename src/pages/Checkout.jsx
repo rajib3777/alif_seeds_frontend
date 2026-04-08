@@ -3,6 +3,8 @@ import { useCartStore } from '../store/useCartStore';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import api from '../api';
+
 export default function Checkout() {
   const { cart, clearCart } = useCartStore();
   const navigate = useNavigate();
@@ -37,13 +39,8 @@ export default function Checkout() {
         items: cart.map(item => ({ product: item.product.id, quantity: item.quantity }))
       };
 
-      const res = await fetch('http://localhost:8000/api/orders/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      await api.post('orders/', payload);
 
-      if (!res.ok) throw new Error('Order failed');
       setSuccess(true);
       clearCart();
     } catch (err) {

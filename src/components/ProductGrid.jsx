@@ -1,3 +1,4 @@
+import api from '../api';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCartStore } from '../store/useCartStore';
@@ -24,10 +25,9 @@ export default function ProductGrid() {
   const addToCart = useCartStore(state => state.addToCart);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/products/')
-      .then(res => res.json())
-      .then(data => {
-        setProducts(data);
+    api.get('products/')
+      .then(res => {
+        setProducts(res.data);
         setLoading(false);
       })
       .catch(err => {
