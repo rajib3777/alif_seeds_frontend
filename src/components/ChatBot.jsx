@@ -59,19 +59,19 @@ const knowledgeBase = [
   {
     id: 'salam',
     test: t => /সালাম|salam|assalamu/.test(t),
-    response: `ওয়ালাইকুম আসসালাম! 👋 আমি **সুবর্ণা 👩**, আলিফ সিডসের এআই অ্যাসিস্ট্যান্ট।\n\nআমি আপনাকে সাহায্য করতে পারব:\n🌿 পণ্যের স্টক ও দাম জানতে\n🛒 কিভাবে অর্ডার করবেন\n🚚 ডেলিভারি চার্জ ও সময়\n💳 পেমেন্ট পদ্ধতি\n🌾 বীজ সম্পর্কিত যেকোনো তথ্য\n\nনিচের বাটনে চাপুন বা সরাসরি লিখুন! 😊`,
+    response: `ওয়ালাইকুম আসসালাম! 👋 আমি **সুবর্ণা 👩**, আলিফ সিডস থেকে।\n\nআমি আপনাকে সাহায্য করতে পারব:\n🌿 পণ্যের স্টক ও দাম জানতে\n🛒 কিভাবে অর্ডার করবেন\n🚚 ডেলিভারি চার্জ ও সময়\n💳 পেমেন্ট পদ্ধতি\n🌾 বীজ সম্পর্কিত যেকোনো তথ্য\n\nনিচের বাটনে চাপুন বা সরাসরি লিখুন! 😊`,
     buttons: []
   },
   {
     id: 'namaskar',
     test: t => /নমস্কার|namaskar|nomoskar/.test(t),
-    response: `নমস্কার! 👋 আমি **সুবর্ণা 👩**, আলিফ সিডসের এআই অ্যাসিস্ট্যান্ট।\n\nআমি আপনাকে সাহায্য করতে পারব:\n🌿 পণ্যের স্টক ও দাম জানতে\n🛒 কিভাবে অর্ডার করবেন\n🚚 ডেলিভারি চার্জ ও সময়\n💳 পেমেন্ট পদ্ধতি\n🌾 বীজ সম্পর্কিত যেকোনো তথ্য\n\nনিচের বাটনে চাপুন বা সরাসরি লিখুন! 😊`,
+    response: `নমস্কার! 👋 আমি **সুবর্ণা 👩**, আলিফ সিডস থেকে।\n\nআমি আপনাকে সাহায্য করতে পারব:\n🌿 পণ্যের স্টক ও দাম জানতে\n🛒 কিভাবে অর্ডার করবেন\n🚚 ডেলিভারি চার্জ ও সময়\n💳 পেমেন্ট পদ্ধতি\n🌾 বীজ সম্পর্কিত যেকোনো তথ্য\n\nনিচের বাটনে চাপুন বা সরাসরি লিখুন! 😊`,
     buttons: []
   },
   {
     id: 'greeting',
     test: t => /হ্যালো|হাই|hello|hi\b|hey\b|good morning|good evening|শুভ সকাল|শুভ সন্ধ্যা/.test(t),
-    response: `হ্যালো! 👋 আমি **সুবর্ণা 👩**, আলিফ সিডসের এআই অ্যাসিস্ট্যান্ট।\n\nআমি আপনাকে সাহায্য করতে পারব:\n🌿 পণ্যের স্টক ও দাম জানতে\n🛒 কিভাবে অর্ডার করবেন\n🚚 ডেলিভারি চার্জ ও সময়\n💳 পেমেন্ট পদ্ধতি\n🌾 বীজ সম্পর্কিত যেকোনো তথ্য\n\nনিচের বাটনে চাপুন বা সরাসরি লিখুন! 😊`,
+    response: `হ্যালো! 👋 আমি **সুবর্ণা 👩**, আলিফ সিডস থেকে।\n\nআমি আপনাকে সাহায্য করতে পারব:\n🌿 পণ্যের স্টক ও দাম জানতে\n🛒 কিভাবে অর্ডার করবেন\n🚚 ডেলিভারি চার্জ ও সময়\n💳 পেমেন্ট পদ্ধতি\n🌾 বীজ সম্পর্কিত যেকোনো তথ্য\n\nনিচের বাটনে চাপুন বা সরাসরি লিখুন! 😊`,
     buttons: []
   },
   {
@@ -191,7 +191,7 @@ export default function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([{
     id: 1, from: 'bot', time: new Date(), buttons: [],
-    text: `হ্যালো! 👋 আমি **সুবর্ণা 👩**, আলিফ সিডসের এআই অ্যাসিস্ট্যান্ট।\n\nআমাকে যেকোনো বিষয় জিজ্ঞেস করুন — বাংলায়, ইংরেজিতে বা বাংলিশে! পণ্যের নাম লিখলে সাথে সাথে স্টক চেক করব। 🌿`
+    text: `হ্যালো! 👋 আমি **সুবর্ণা 👩**, আলিফ সিডস থেকে।\n\nআমাকে যেকোনো বিষয় জিজ্ঞেস করুন — বাংলায়, ইংরেজিতে বা বাংলিশে! পণ্যের নাম লিখলে সাথে সাথে স্টক চেক করব। 🌿`
   }]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -372,12 +372,19 @@ export default function ChatBot() {
                 <p className="text-white font-bold text-sm leading-tight">সুবর্ণা 👩</p>
                 <div className="flex items-center gap-1 mt-0.5">
                   <div className="w-1.5 h-1.5 bg-green-300 rounded-full animate-pulse"></div>
-                  <p className="text-green-200 text-xs">সবসময় আপনার পাশে 💚</p>
+                  <p className="text-green-200 text-xs text-nowrap">সবসময় আপনার পাশে 💚</p>
                 </div>
               </div>
-              <button onClick={() => setIsOpen(false)} className="text-white/70 hover:text-white flex-shrink-0 ml-1">
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
-              </button>
+              <div className="flex items-center gap-1">
+                <a href="tel:01334642219" className="text-white/70 hover:text-white p-1.5 rounded-full hover:bg-white/10 transition-all" title="কল করুন">
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                </a>
+                <button onClick={() => setIsOpen(false)} className="text-white/70 hover:text-white p-1.5 rounded-full hover:bg-white/10 transition-all">
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -416,8 +423,9 @@ export default function ChatBot() {
             <div ref={messagesEndRef}/>
           </div>
 
-          {/* Quick Replies */}
-          <div className="bg-white border-t border-gray-100 px-2 py-1.5 flex gap-1.5 overflow-x-auto flex-shrink-0" style={{scrollbarWidth:'none'}}>
+          {/* Quick Replies / Suggestions */}
+          <div className="bg-white border-t border-gray-100 px-2 py-2.5 flex gap-2 overflow-x-auto flex-shrink-0 chat-suggestions no-scrollbar" 
+               style={{ WebkitOverflowScrolling: 'touch', scrollSnapType: 'x mandatory' }}>
             {quickReplies.map(q => (
               <button key={q.id} onClick={() => handleQuick(q.id)}
                 className="flex-shrink-0 text-xs px-2 py-1 rounded-full border border-green-200 text-green-800 hover:bg-green-50 hover:border-green-500 transition-all whitespace-nowrap font-medium">
@@ -448,8 +456,29 @@ export default function ChatBot() {
           from { opacity:0; transform:translateY(12px) scale(0.97); }
           to { opacity:1; transform:translateY(0) scale(1); }
         }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #d1fae5; border-radius: 4px; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-thumb { background: #154316; border-radius: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        
+        /* Enable horizontal scroll on desktop more clearly */
+        .chat-suggestions {
+          scrollbar-width: thin;
+          scrollbar-color: #154316 transparent;
+        }
+        .chat-suggestions::-webkit-scrollbar {
+          height: 6px;
+        }
+        .chat-suggestions::-webkit-scrollbar-thumb {
+          background: #2a6f2e;
+          border-radius: 10px;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
       `}</style>
     </>
   );
