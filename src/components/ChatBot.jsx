@@ -210,27 +210,82 @@ function findResponse(text) {
   return bestScore > 0 ? bestMatch : null;
 }
 
+// =============================================
+// SYNONYM MAP: English, transliteration, misspellings → Bangla search term
+// =============================================
+const synonymMap = [
+  // Rice / Dhan
+  { patterns: ['rice', 'rais', 'ries', 'dhan', 'dhaan', 'daan', 'daan bij', 'dn', 'dhan bij', 'chan'], bangla: 'ধান' },
+  // Wheat / Gom
+  { patterns: ['wheat', 'weat', 'wheet', 'gom', 'gom bij', 'goum', 'gam', 'gum bij'], bangla: 'গম' },
+  // Corn / Maize / Bhutta
+  { patterns: ['corn', 'maize', 'bhutta', 'bhuttta', 'bhutra', 'bhuta', 'vituta', 'corn seed', 'maize seed', 'ভুট্টা বীজ'], bangla: 'ভুট্টা' },
+  // Sorghum / Sudan / Sarghum
+  { patterns: ['sorgum', 'sorghum', 'sorghum', 'sorgham', 'sudan', 'sudan grass', 'sarghum', 'sergam', 'sorhum', 'sorgam'], bangla: 'সরগাম' },
+  // Vegetable seeds
+  { patterns: ['vegetable', 'vegitable', 'shobji', 'sobji', 'sobzi', 'shobji bij', 'veg', 'veges', 'sabzi'], bangla: 'সবজি' },
+  // Tomato
+  { patterns: ['tomato', 'tomate', 'tometo', 'tamato', 'tomato bij'], bangla: 'টমেটো' },
+  // Mustard / Sarisha
+  { patterns: ['mustard', 'sarisha', 'sarsa', 'sarso', 'sarisha bij', 'mustrad'], bangla: 'সরিষা' },
+  // Lentil / Masur
+  { patterns: ['lentil', 'masur', 'masor', 'masoor', 'dal', 'daal'], bangla: 'মসুর' },
+  // Potato / Alu
+  { patterns: ['potato', 'alu', 'aloo', 'poteto', 'poteto bij', 'alu bij'], bangla: 'আলু' },
+  // Onion seeds
+  { patterns: ['onion', 'piaz', 'peyaz', 'piyaz', 'onion seed'], bangla: 'পেঁয়াজ' },
+  // Chili
+  { patterns: ['chili', 'chilli', 'morich', 'mirchi', 'chili seed', 'red chili'], bangla: 'মরিচ' },
+  // Garlic
+  { patterns: ['garlic', 'rasun', 'rashun', 'rasoon'], bangla: 'রসুন' },
+];
+
+function normalizeSynonym(text) {
+  const lower = text.toLowerCase().trim();
+  for (const entry of synonymMap) {
+    if (entry.patterns.some(p => lower.includes(p))) {
+      return entry.bangla;
+    }
+  }
+  return lower;
+}
+
+function fuzzyMatch(productName, query) {
+  const pn = productName.toLowerCase();
+  const q = query.toLowerCase();
+  if (pn.includes(q) || q.includes(pn)) return true;
+  // Character overlap scoring
+  let matches = 0;
+  for (const ch of q) {
+    if (pn.includes(ch)) matches++;
+  }
+  return matches / Math.max(q.length, 1) > 0.6;
+}
+
 function isStockQuery(text) {
   const lowerText = text.toLowerCase();
   const stockKeywords = [
     'স্টক', 'stock', 'আছে', 'পাওয়া যায়', 'পাব', 'available', 'কি পাব',
     'পাওয়া', 'পাচ্ছি না', 'পাচ্ছি', 'আছে কি', 'in stock', 'out of stock',
-    'আছে কিনা', 'কিনতে পারব', 'seed', 'বীজ আছে'
+    'আছে কিনা', 'কিনতে পারব', 'বীজ আছে', 'seed available', 'bij ache', 'bij pabo'
   ];
-  return stockKeywords.some(kw => lowerText.includes(kw));
+  // Also treat as stock query if it matches any synonym (product name search)
+  const matchesSynonym = synonymMap.some(e => e.patterns.some(p => lowerText.includes(p)));
+  return stockKeywords.some(kw => lowerText.includes(kw)) || matchesSynonym;
 }
 
 function extractProductName(text) {
   const removeWords = [
     'স্টক', 'stock', 'আছে', 'আছে কি', 'আছে কিনা', 'পাওয়া যায়', 'পাব', 'available',
     'কি', 'কিনা', 'কিনতে পারব', 'বীজের', 'বীজ এর', 'er', 'এর', 'seed', 'koba', 'পাচ্ছি',
-    'কোথায়', 'পাচ্ছি না', 'দেখাও', 'দেখান', 'in', 'of', 'out', 'is', 'that'
+    'কোথায়', 'পাচ্ছি না', 'দেখাও', 'দেখান', 'in', 'of', 'out', 'is', 'that', 'bij', 'বীজ',
+    'আমাকে', 'দেখতে', 'চাই', 'জানতে', 'চেক', 'check', 'find'
   ];
   let query = text.toLowerCase();
   for (const w of removeWords) {
-    query = query.replace(new RegExp(w, 'gi'), '').trim();
+    query = query.replace(new RegExp(`\\b${w}\\b`, 'gi'), '').trim();
   }
-  return query.trim() || text.trim();
+  return normalizeSynonym(query.trim() || text.trim());
 }
 
 export default function ChatBot() {
@@ -283,21 +338,25 @@ export default function ChatBot() {
     }
   };
 
-  const handleStockCheck = async (query) => {
+  const handleStockCheck = async (rawQuery) => {
     setStockPrompt(false);
     setIsTyping(true);
+    // Normalize: translate English/misspelled to Bangla
+    const query = normalizeSynonym(rawQuery);
     try {
       const res = await api.get('products/');
       const products = res.data;
       const matched = products.filter(p =>
         p.name.toLowerCase().includes(query.toLowerCase()) ||
-        (p.category_name && p.category_name.toLowerCase().includes(query.toLowerCase()))
+        (p.category_name && p.category_name.toLowerCase().includes(query.toLowerCase())) ||
+        fuzzyMatch(p.name, query) ||
+        fuzzyMatch(p.name, rawQuery)
       );
 
       setIsTyping(false);
       if (matched.length === 0) {
         addBotMessage(
-          `দুঃখিত, **"${query}"** নামে কোনো পণ্য পাওয়া যায়নি।\n\nঅনুগ্রহ করে অন্য নামে সার্চ করুন অথবা আমাদের সম্পূর্ণ পণ্য তালিকা দেখুন।`,
+          `দুঃখিত, **"${rawQuery}"** নামে কোনো পণ্য খুঁজে পাইনি।\n\nঅনুগ্রহ করে অন্য নামে সার্চ করুন অথবা আমাদের সম্পূর্ণ পণ্য তালিকা দেখুন।`,
           [{ label: '🌿 সব পণ্য দেখুন', action: 'navigate', path: '/' }],
           0
         );
@@ -306,15 +365,15 @@ export default function ChatBot() {
           `${p.in_stock ? '✅' : '❌'} **${p.name}** — ৳${p.price}/${p.unit || 'কেজি'} — ${p.in_stock ? 'স্টকে আছে' : 'স্টক শেষ'}`
         ).join('\n');
 
-        const actionButtons = matched.slice(0, 3).flatMap(p => [
-          { label: `👁️ ${p.name.slice(0, 14)} দেখুন`, action: 'view_product', productId: p.id },
-        ]);
+        const actionButtons = matched.slice(0, 3).map(p => (
+          { label: `👁️ ${p.name.slice(0, 14)} দেখুন`, action: 'view_product', productId: p.id }
+        ));
         if (matched.some(p => p.in_stock)) {
-          actionButtons.push({ label: '🛒 কার্টে যান', action: 'navigate', path: `/product/${matched.find(p => p.in_stock)?.id}` });
+          actionButtons.push({ label: '🛒 অর্ডার করুন', action: 'navigate', path: `/product/${matched.find(p => p.in_stock)?.id}` });
         }
 
         addBotMessage(
-          `🔍 **"${query}" এর ফলাফল (${matched.length}টি পণ্য):**\n\n${lines}`,
+          `🔍 **"${rawQuery}" এর ফলাফল (${matched.length}টি পণ্য):**\n\n${lines}`,
           actionButtons,
           0
         );
