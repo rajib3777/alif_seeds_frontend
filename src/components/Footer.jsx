@@ -2,7 +2,36 @@ const Facebook = () => (<svg xmlns="http://www.w3.org/2000/svg" width="16" heigh
 const Twitter = () => (<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path></svg>);
 const Instagram = () => (<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>);
 
+import { useState } from 'react';
+import api from '../api';
+
 export default function Footer() {
+  const [form, setForm] = useState({ name: '', phone: '', message: '' });
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.name || !form.phone || !form.message) {
+      setStatus({ type: 'error', message: 'সবগুলো ঘর পূরণ করুন' });
+      return;
+    }
+
+    setLoading(true);
+    setStatus(null);
+
+    try {
+      await api.post('messages/', form);
+      setStatus({ type: 'success', message: 'আপনার বার্তাটি সফলভাবে পাঠানো হয়েছে!' });
+      setForm({ name: '', phone: '', message: '' });
+    } catch (error) {
+      console.error('Contact error:', error);
+      setStatus({ type: 'error', message: 'বার্তা পাঠানো সম্ভব হয়নি। আবার চেষ্টা করুন।' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <footer className="bg-[#1B291C] text-white pt-24 pb-8 border-t border-gray-800">
       <div className="container mx-auto px-8 grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
@@ -31,14 +60,43 @@ export default function Footer() {
           <div className="bg-[#233524] p-8 rounded-xl shadow-2xl border border-gray-700/30">
              <p className="text-gold uppercase tracking-widest text-xs font-bold mb-2">Contact Now</p>
              <h4 className="font-bold text-2xl mb-6 uppercase">GET IN TOUCH NOW</h4>
-             <form className="space-y-4">
+             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <input type="text" placeholder="Your Name" className="bg-[#1A261A] border border-gray-800 px-4 py-3 rounded text-sm w-full outline-none focus:ring-1 focus:ring-gold text-white" />
-                  <input type="text" placeholder="Phone Number" className="bg-[#1A261A] border border-gray-800 px-4 py-3 rounded text-sm w-full outline-none focus:ring-1 focus:ring-gold text-white" />
+                  <input 
+                    type="text" 
+                    placeholder="Your Name" 
+                    value={form.name}
+                    onChange={e => setForm({...form, name: e.target.value})}
+                    className="bg-[#1A261A] border border-gray-800 px-4 py-3 rounded text-sm w-full outline-none focus:ring-1 focus:ring-gold text-white" 
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="Phone Number" 
+                    value={form.phone}
+                    onChange={e => setForm({...form, phone: e.target.value})}
+                    className="bg-[#1A261A] border border-gray-800 px-4 py-3 rounded text-sm w-full outline-none focus:ring-1 focus:ring-gold text-white" 
+                  />
                 </div>
-                <textarea placeholder="Your Message" rows="3" className="bg-[#1A261A] border border-gray-800 px-4 py-3 rounded text-sm w-full outline-none focus:ring-1 focus:ring-gold text-white"></textarea>
-                <button type="submit" className="bg-gold text-darkGreen font-bold px-8 py-3 rounded hover:bg-yellow-400 transition w-full sm:w-auto">
-                  SEND MESSAGE
+                <textarea 
+                  placeholder="Your Message" 
+                  rows="3" 
+                  value={form.message}
+                  onChange={e => setForm({...form, message: e.target.value})}
+                  className="bg-[#1A261A] border border-gray-800 px-4 py-3 rounded text-sm w-full outline-none focus:ring-1 focus:ring-gold text-white"
+                ></textarea>
+                
+                {status && (
+                  <div className={`text-sm font-bold ${status.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+                    {status.message}
+                  </div>
+                )}
+
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  className={`bg-gold text-darkGreen font-bold px-8 py-3 rounded transition w-full sm:w-auto ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-yellow-400'}`}
+                >
+                  {loading ? 'SENDING...' : 'SEND MESSAGE'}
                 </button>
              </form>
           </div>
