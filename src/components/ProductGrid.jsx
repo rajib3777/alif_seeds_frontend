@@ -23,6 +23,7 @@ export default function ProductGrid() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const addToCart = useCartStore(state => state.addToCart);
+  const [activeSeason, setActiveSeason] = useState('All');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,14 +38,48 @@ export default function ProductGrid() {
       });
   }, []);
 
+  const seasons = [
+    { id: 'All', name: 'সব' },
+    { id: 'Winter', name: 'শীতকালীন' },
+    { id: 'Summer', name: 'গ্রীষ্মকালীন' },
+    { id: 'Year-round', name: 'বারোমাসি' }
+  ];
+
+  const filteredProducts = activeSeason === 'All' 
+    ? products 
+    : products.filter(p => p.season === activeSeason);
+
+  const seasonMap = {
+    'Winter': 'শীতকালীন',
+    'Summer': 'গ্রীষ্মকালীন',
+    'Year-round': 'বারোমাসি'
+  };
+
   const localImages = ['/cat1.png', '/cat2.jpg', '/cat3.jpg', '/sorghum.jpg'];
 
   return (
     <section id="products" className="py-24 bg-darkGreen">
       <div className="container mx-auto px-8">
-        <div className="text-center mb-16">
+        <div className="text-center mb-12">
           <p className="text-gray-400 uppercase tracking-widest text-xs mb-3 font-semibold">আমাদের স্টোর</p>
           <h2 className="text-3xl font-bold text-white uppercase tracking-wider">সব বীজ সমাহার</h2>
+        </div>
+
+        {/* Season Filter Bar */}
+        <div className="flex flex-wrap justify-center gap-4 mb-16">
+          {seasons.map(s => (
+            <button
+              key={s.id}
+              onClick={() => setActiveSeason(s.id)}
+              className={`px-6 py-2 rounded-full font-bold transition-all duration-300 border-2 ${
+                activeSeason === s.id 
+                  ? 'bg-gold border-gold text-darkGreen shadow-[0_0_20px_rgba(235,180,85,0.4)]' 
+                  : 'bg-transparent border-white/20 text-white hover:border-gold hover:text-gold'
+              }`}
+            >
+              {s.name}
+            </button>
+          ))}
         </div>
 
         {loading && (
@@ -56,7 +91,7 @@ export default function ProductGrid() {
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
-          {products.map((product, index) => {
+          {filteredProducts.map((product, index) => {
             const imgSrc = resolveImage(product.image) || localImages[index % localImages.length];
             return (
               <motion.div 
@@ -86,6 +121,9 @@ export default function ProductGrid() {
                     {product.is_special && (
                       <div className="absolute top-3 right-3 bg-gold text-darkGreen font-bold text-xs px-3 py-1 rounded shadow-lg uppercase">স্পেশাল</div>
                     )}
+                    <div className="absolute bottom-3 left-3 bg-darkGreen/80 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded-full border border-white/20 font-semibold uppercase tracking-wider group-hover:bg-gold group-hover:text-darkGreen transition-colors duration-300">
+                      {seasonMap[product.season] || 'বারোমাসি'}
+                    </div>
                   </div>
                   <div className="p-6">
                     <p className="text-xs text-gold mb-2 font-bold tracking-wider uppercase">{product.category_name}</p>
