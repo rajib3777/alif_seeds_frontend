@@ -1,9 +1,21 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingCart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import api from '../api';
 
 export default function FeaturedSeed() {
   const navigate = useNavigate();
+  const [productId, setProductId] = useState(null);
+
+  useEffect(() => {
+    api.get('products/')
+      .then(res => {
+        const sorghum = res.data.find(p => p.name.includes('সর্গাম'));
+        if (sorghum) setProductId(sorghum.id);
+      })
+      .catch(err => console.error(err));
+  }, []);
 
   return (
     <section className="py-24 bg-midGreen text-white">
@@ -21,6 +33,7 @@ export default function FeaturedSeed() {
               src="/sorghum.jpg" 
               alt="Sorghum Sudan Seeds" 
               className="relative z-10 w-full max-w-md rounded-xl shadow-2xl border-4 border-midGreen"
+              onError={(e) => { e.target.onerror = null; e.target.src = '/cat2.jpg'; }}
             />
             {/* Price Tag overlapping */}
             <div className="absolute bottom-10 -right-4 md:right-10 lg:-right-4 bg-lightGreen p-6 rounded-xl shadow-xl z-20 border border-gold/30">
@@ -62,9 +75,19 @@ export default function FeaturedSeed() {
               </li>
             </ul>
 
-            <button onClick={() => navigate('/product/1')} className="bg-transparent border-2 border-gold text-gold px-8 py-3 rounded-md hover:bg-gold hover:text-darkGreen transition-colors font-bold flex items-center gap-2">
+            <button 
+              onClick={() => {
+                if (productId) {
+                  navigate(`/product/${productId}`);
+                } else {
+                  alert("পণ্যটি এই মুহূর্তে ডাটাবেস এ নেই।");
+                }
+              }} 
+              disabled={!productId}
+              className={`bg-transparent border-2 border-gold text-gold px-8 py-3 rounded-md transition-colors font-bold flex items-center gap-2 ${productId ? 'hover:bg-gold hover:text-darkGreen' : 'opacity-50 cursor-not-allowed'}`}
+            >
               <ShoppingCart className="w-5 h-5 text-current" />
-              কার্টে যোগ করুন
+              {productId ? 'কার্টে যোগ করুন' : 'লোড হচ্ছে...'}
             </button>
           </motion.div>
         </div>

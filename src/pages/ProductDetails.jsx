@@ -27,8 +27,7 @@ export default function ProductDetails() {
   const handleAddToCart = () => {
     if (!product) return;
     addToCart(product, quantity);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2500);
+    navigate('/cart');
   };
 
   if (loading) {

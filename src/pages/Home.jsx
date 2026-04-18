@@ -45,10 +45,38 @@ function ParallaxBanner() {
   );
 }
 
+function FreeDeliveryBanner() {
+  return (
+    <section className="bg-darkGreen py-12">
+      <div className="container mx-auto px-4 max-w-6xl">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-gold group cursor-pointer"
+        >
+          <img 
+            src="/free-delivery-banner.png" 
+            alt="5KG এর উপরে অর্ডারে ফ্রি ডেলিভারি" 
+            className="w-full h-auto max-h-[400px] object-cover group-hover:scale-105 transition duration-700"
+            onError={(e) => { e.target.style.display = 'none'; }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-darkGreen/80 to-transparent flex items-end p-8">
+            <h3 className="text-3xl md:text-5xl font-bold text-white drop-shadow-lg">
+              ৫ কেজি এর উপরে অর্ডারে <span className="text-gold">ফ্রি ডেলিভারি!</span>
+            </h3>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   return (
     <>
       <Hero />
+      <FreeDeliveryBanner />
       <FeaturedSeed />
       <Categories />
       <ParallaxBanner />

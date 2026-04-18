@@ -1,6 +1,6 @@
 import api from '../api';
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCartStore } from '../store/useCartStore';
 import { motion } from 'framer-motion';
 
@@ -23,6 +23,7 @@ export default function ProductGrid() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const addToCart = useCartStore(state => state.addToCart);
+  const navigate = useNavigate();
 
   useEffect(() => {
     api.get('products/')
@@ -96,7 +97,7 @@ export default function ProductGrid() {
                     <span className="text-2xl font-bold text-white">৳{parseFloat(product.price).toLocaleString()}</span>
                     <button
                       disabled={!product.in_stock}
-                      onClick={() => addToCart(product)}
+                      onClick={() => { addToCart(product); navigate('/cart'); }}
                       title="কার্টে যোগ করুন"
                       className="w-10 h-10 rounded flex items-center justify-center bg-lightGreen text-white hover:bg-gold hover:text-darkGreen transition-colors disabled:opacity-50"
                     >
