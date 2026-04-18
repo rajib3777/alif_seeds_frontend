@@ -3,456 +3,320 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
 // =============================================
-// COMPREHENSIVE KNOWLEDGE BASE (Bangla + English)
+// SYNONYM MAP — understands English, Banglish, misspellings & Bangla
+// =============================================
+const synonymMap = [
+  { patterns: ['rice','rais','ries','rize','dhan','dhaan','daan','dan','daan bij','dhanbi','dhan seed','dhan bij','chan','paddy'], bangla: 'ধান' },
+  { patterns: ['wheat','weat','wheet','gom','gom bij','goum','gam','gum','gum bij','whet'], bangla: 'গম' },
+  { patterns: ['corn','maize','bhutta','bhuttta','bhutra','bhuta','vituta','corn seed','maize seed','bhuttar'], bangla: 'ভুট্টা' },
+  { patterns: ['sorgum','sorghum','sorgham','sudan','sultan','sudan grass','sarghum','sergam','sorhum','sorgam','sorham','surgum'], bangla: 'সরগাম' },
+  { patterns: ['vegetable','vegitable','vejetable','shobji','sobji','sobzi','shobji bij','veg','veges','sabzi','shak'], bangla: 'সবজি' },
+  { patterns: ['tomato','tomate','tometo','tamato','tometo','tometo seed'], bangla: 'টমেটো' },
+  { patterns: ['mustard','sarisha','sarsa','sarso','sarisha bij','mustrad','mustered'], bangla: 'সরিষা' },
+  { patterns: ['lentil','masur','masor','masoor','dal','daal','moosur'], bangla: 'মসুর' },
+  { patterns: ['potato','alu','aloo','poteto','alu bij','aloo seed'], bangla: 'আলু' },
+  { patterns: ['onion','piaz','peyaz','piyaz','onion seed','onin','peaz'], bangla: 'পেঁয়াজ' },
+  { patterns: ['chili','chilli','morich','mirchi','chili seed','red chili','moric','moris'], bangla: 'মরিচ' },
+  { patterns: ['garlic','rasun','rashun','rasoon','garlik'], bangla: 'রসুন' },
+  { patterns: ['jute','pat','paat','jut bij'], bangla: 'পাট' },
+  { patterns: ['cauliflower','phulkopi','phoolkopi','fulkopi'], bangla: 'ফুলকপি' },
+  { patterns: ['cabbage','badhakopi','batha kopi','patakofi'], bangla: 'বাঁধাকপি' },
+  { patterns: ['bitter gourd','karela','karolla','karola','uchhe'], bangla: 'করলা' },
+  { patterns: ['eggplant','brinjal','begun','begun','brinzal','egg plant'], bangla: 'বেগুন' },
+  { patterns: ['okra','dherosh','dherosh bij','lady finger','dharosh','dheros'], bangla: 'ঢেঁড়স' },
+  { patterns: ['cucumber','sasa','shasha','kheera','khira','cucumba'], bangla: 'শসা' },
+  { patterns: ['gourd','lau','laau','bottle gourd','lav'], bangla: 'লাউ' },
+  { patterns: ['spinach','palak','shaak','palong','palong shaak'], bangla: 'পালং শাক' },
+  { patterns: ['sunflower','surajmukhi','helianthus','sunflowa','shunflower'], bangla: 'সূর্যমুখী' },
+];
+
+// Normalize query: map to Bangla equivalent or return as-is
+function normalizeSynonym(text) {
+  const lower = text.toLowerCase().trim();
+  for (const entry of synonymMap) {
+    if (entry.patterns.some(p => lower.includes(p))) return entry.bangla;
+  }
+  return lower;
+}
+
+// Fuzzy character match (handles minor typos)
+function fuzzyMatch(productName, query) {
+  const pn = productName.toLowerCase();
+  const q = query.toLowerCase().trim();
+  if (!q || q.length < 2) return false;
+  if (pn.includes(q) || q.includes(pn)) return true;
+  let matches = 0;
+  for (const ch of q) { if (pn.includes(ch)) matches++; }
+  return matches / Math.max(q.length, 1) > 0.65;
+}
+
+// =============================================
+// KNOWLEDGE BASE — bilingual Q&A
 // =============================================
 const knowledgeBase = [
   {
     id: 'greeting',
-    keywords: ['হ্যালো', 'হাই', 'সালাম', 'নমস্কার', 'আস্সালামু', 'hello', 'hi', 'hey', 'salaam', 'assalamu', 'good morning', 'good evening', 'কেমন', 'আছেন', 'শুভ'],
-    response: `আস্সালামু আলাইকুম! 👋 **আলিফ সিডস**-এ স্বাগতম!
-
-আমি আপনাকে যেসব বিষয়ে সাহায্য করতে পারব:
-🛒 অর্ডার করার পদ্ধতি
-📦 পণ্যের স্টক ও দাম
-🚚 ডেলিভারি তথ্য
-💳 পেমেন্ট পদ্ধতি
-📞 যোগাযোগ
-
-নিচের বাটন চাপুন বা সরাসরি প্রশ্ন করুন! 😊`,
+    test: t => /হ্যালো|হাই|সালাম|নমস্কার|আস্সালামু|hello|hi\b|hey\b|salaam|assalamu|good morning|good evening|কেমন আছ|শুভ সকাল|শুভ সন্ধ্যা/.test(t),
+    response: `আস্সালামু আলাইকুম! 👋 **আলিফ সিডস**-এ স্বাগতম!\n\nআমি আপনাকে সাহায্য করতে পারব:\n🌿 পণ্যের স্টক ও দাম জানতে\n🛒 কিভাবে অর্ডার করবেন\n🚚 ডেলিভারি চার্জ ও সময়\n💳 পেমেন্ট পদ্ধতি\n🌾 বীজ সম্পর্কিত যেকোনো তথ্য\n\nনিচের বাটনে চাপুন বা সরাসরি লিখুন! 😊`,
     buttons: []
   },
   {
     id: 'order',
-    keywords: [
-      'অর্ডার', 'order', 'কিনতে চাই', 'কিনব', 'কিভাবে', 'kivabe', 'কেনা', 'buy', 'purchase',
-      'cart', 'কার্ট', 'checkout', 'চেকআউট', 'কিনতে', 'কিনতে পারব', 'order kori', 'order korbo',
-      'কিভাবে অর্ডার', 'how to order', 'how to buy', 'order process', 'কেনার নিয়ম'
-    ],
-    response: `📦 **অর্ডার করার ধাপগুলো:**
-
-**ধাপ ১:** পছন্দের পণ্যে ক্লিক করুন
-**ধাপ ২:** "কার্টে যোগ করুন" চাপুন
-**ধাপ ৩:** কার্টে গিয়ে পরিমাণ ঠিক করুন
-**ধাপ ৪:** "চেকআউট করুন" চাপুন
-**ধাপ ৫:** নাম, ফোন ও ঠিকানা দিন
-**ধাপ ৬:** ডেলিভারি জোন বেছে "অর্ডার দিন" চাপুন ✅
-
-এখনই পণ্য দেখতে নিচের বাটনে চাপুন! 👇`,
+    test: t => /অর্ডার|order|কিনতে|কিনব|কিভাবে|kivabe|কেনা|buy|purchase|cart|কার্ট|checkout|চেকআউট|how to buy|how to order/.test(t),
+    response: `📦 **অর্ডার করার সহজ ধাপগুলো:**\n\n**➊** পছন্দের পণ্যে ক্লিক করুন\n**➋** "কার্টে যোগ করুন" বাটন চাপুন\n**➌** কার্ট পেজে পরিমাণ ঠিক করুন\n**➍** "চেকআউট করুন" চাপুন\n**➎** নাম, ফোন ও ঠিকানা দিন\n**➏** ডেলিভারি জোন বেছে "অর্ডার দিন" চাপুন ✅\n\nএখনই শুরু করুন 👇`,
     buttons: [
-      { label: '🛒 পণ্য দেখুন', action: 'navigate', path: '/' },
+      { label: '🌿 পণ্য দেখুন', action: 'navigate', path: '/' },
       { label: '🛍️ কার্ট দেখুন', action: 'navigate', path: '/cart' }
     ]
   },
   {
     id: 'delivery',
-    keywords: [
-      'ডেলিভারি', 'delivery', 'চার্জ', 'charge', 'শিপিং', 'shipping', 'কতদিন', 'কত দিন',
-      'পৌঁছাবে', 'পৌছাবে', 'কত টাকা', 'free delivery', 'ফ্রি ডেলিভারি', 'ডেলিভারি চার্জ',
-      'delivery charge', 'কত লাগবে', 'charge koto', 'কতো', 'courier', 'কুরিয়ার'
-    ],
-    response: `🚚 **ডেলিভারি চার্জ তথ্য:**
-
-| জোন | চার্জ |
-|-----|-------|
-| 🏙️ ঢাকা সিটি | ৭০৳ |
-| 🌆 ঢাকা সাবার্ব | ১০০৳ |
-| 🗺️ ঢাকার বাইরে | ১২০৳ |
-
-⚖️ অতিরিক্ত ওজন: প্রতি কেজিতে +১০৳
-
-🎉 **বিশেষ অফার:** ৫ কেজি বা বেশি অর্ডারে **ডেলিভারি সম্পূর্ণ ফ্রি!**
-
-⏱️ ডেলিভারি সময়: ২-৫ কার্যদিবস`,
-    buttons: [
-      { label: '🛒 এখনই অর্ডার করুন', action: 'navigate', path: '/' }
-    ]
+    test: t => /ডেলিভারি|delivery|চার্জ|charge|শিপিং|shipping|পৌঁছাবে|courier|কুরিয়ার|ফ্রি ডেলিভারি|free delivery|কত টাকা লাগবে/.test(t),
+    response: `🚚 **ডেলিভারি চার্জ:**\n\n🏙️ ঢাকা সিটি → **৭০৳**\n🌆 ঢাকা সাবার্ব → **১০০৳**\n🗺️ ঢাকার বাইরে → **১২০৳**\n\n⚖️ অতিরিক্ত ওজন: প্রতি কেজিতে **+১০৳**\n\n🎉 **৫ কেজি বা বেশি অর্ডারে ডেলিভারি সম্পূর্ণ ফ্রি!**\n\n⏱️ ডেলিভারি সময়: **২–৫ কার্যদিবস**`,
+    buttons: [{ label: '🛒 এখনই অর্ডার করুন', action: 'navigate', path: '/' }]
   },
   {
     id: 'payment',
-    keywords: [
-      'পেমেন্ট', 'payment', 'টাকা', 'pay', 'bkash', 'বিকাশ', 'নগদ', 'nagad', 'ক্যাশ', 'cash',
-      'অনলাইন পেমেন্ট', 'online payment', 'কিভাবে দেব', 'how to pay', 'pay kori', 'payment method'
-    ],
-    response: `💳 **পেমেন্ট পদ্ধতি:**
-
-✅ **ক্যাশ অন ডেলিভারি**
-পণ্য হাতে পাওয়ার পরে ডেলিভারি ম্যানকে টাকা দিন।
-
-এটাই সবচেয়ে নিরাপদ এবং সহজ পদ্ধতি! আপনাকে আগে থেকে কোনো টাকা দিতে হবে না। 😊
-
-_বিকাশ/নগদ পেমেন্ট শীঘ্রই চালু হবে!_`,
-    buttons: [
-      { label: '📦 অর্ডার করুন', action: 'navigate', path: '/' }
-    ]
+    test: t => /পেমেন্ট|payment|bkash|বিকাশ|নগদ|nagad|ক্যাশ|cash|how to pay|pay method|টাকা দেব/.test(t),
+    response: `💳 **পেমেন্ট পদ্ধতি:**\n\n✅ **ক্যাশ অন ডেলিভারি** — পণ্য পাওয়ার পরে টাকা দিন\n\nকোনো অ্যাডভান্স পেমেন্ট নেই! সম্পূর্ণ ঝামেলামুক্ত! 😊\n\n_বিকাশ / নগদ শীঘ্রই চালু হবে!_`,
+    buttons: [{ label: '📦 অর্ডার করুন', action: 'navigate', path: '/' }]
   },
   {
     id: 'return',
-    keywords: [
-      'রিটার্ন', 'return', 'ফেরত', 'বাতিল', 'cancel', 'ক্যান্সেল', 'সমস্যা', 'নষ্ট',
-      'damage', 'wrong', 'ভুল পণ্য', 'খারাপ', 'refund', 'রিফান্ড', 'exchange', 'এক্সচেঞ্জ'
-    ],
-    response: `🔄 **রিটার্ন ও বাতিল নীতি:**
-
-✅ পণ্য নষ্ট বা ভুল এলে ফেরত দেওয়া যাবে
-✅ পণ্য পাওয়ার **২৪ ঘণ্টার মধ্যে** জানাতে হবে
-✅ ছবিসহ আমাদের ফোনে জানান
-✅ সমস্যার পণ্য নতুন করে পাঠানো হবে
-
-আমরা আপনার সন্তুষ্টি নিশ্চিত করতে প্রতিশ্রুতিবদ্ধ! 💚`,
-    buttons: [
-      { label: '📞 যোগাযোগ করুন', action: 'phone', value: 'tel:+8801234567890' }
-    ]
+    test: t => /রিটার্ন|return|ফেরত|বাতিল|cancel|ক্যান্সেল|নষ্ট|damage|wrong|refund|রিফান্ড|exchange/.test(t),
+    response: `🔄 **রিটার্ন ও বাতিল নীতি:**\n\n✅ পণ্য নষ্ট বা ভুল এলে ফেরত পাবেন\n✅ পণ্য পাওয়ার **২৪ ঘণ্টার মধ্যে** জানাতে হবে\n✅ ছবিসহ আমাদের ফোনে জানান\n✅ নতুন পণ্য পাঠানো হবে বিনামূল্যে\n\nআমরা আপনার সমস্যা সমাধান করতে প্রতিশ্রুতিবদ্ধ! 💚`,
+    buttons: [{ label: '📞 যোগাযোগ করুন', action: 'phone', value: 'tel:+8801234567890' }]
   },
   {
     id: 'contact',
-    keywords: [
-      'ফোন', 'phone', 'যোগাযোগ', 'contact', 'নম্বর', 'number', 'কল', 'call',
-      'হেল্প', 'help', 'সাহায্য', 'support', 'কথা বলব', 'talk', 'reach', 'email', 'ইমেইল'
-    ],
-    response: `📞 **যোগাযোগের তথ্য:**
-
-📱 **ফোন:** +880 1234-567890
-📧 **ইমেইল:** info@alifseeds.com
-🕐 **সময়:** সকাল ৯টা - রাত ৯টা
-📅 **দিন:** সপ্তাহের ৭ দিন
-
-সরাসরি কল করতে বাটনে চাপুন! 👇`,
-    buttons: [
-      { label: '📞 এখনই কল করুন', action: 'phone', value: 'tel:+8801234567890' }
-    ]
+    test: t => /ফোন|phone|যোগাযোগ|contact|নম্বর|number|কল করব|call|হেল্প|help|সাহায্য|support|email|ইমেইল/.test(t),
+    response: `📞 **যোগাযোগের তথ্য:**\n\n📱 ফোন: **+880 1234-567890**\n📧 ইমেইল: **info@alifseeds.com**\n🕐 সময়: সকাল ৯টা – রাত ৯টা\n📅 সপ্তাহের ৭ দিন খোলা`,
+    buttons: [{ label: '📞 এখনই কল করুন', action: 'phone', value: 'tel:+8801234567890' }]
   },
   {
     id: 'about',
-    keywords: [
-      'আলিফ', 'alif', 'সম্পর্কে', 'about', 'company', 'কোম্পানি', 'কারা', 'who are you',
-      'কি', 'what is', 'seeds', 'বীজ কোম্পানি', 'কোথায়', 'where', 'bangladesh', 'বাংলাদেশ'
-    ],
-    response: `🌱 **আলিফ সিডস সম্পর্কে:**
-
-আলিফ সিডস বাংলাদেশের একটি **বিশ্বস্ত বীজ বাজার**। আমরা কৃষকদের জন্য উন্নতমানের বীজ সরবরাহ করি।
-
-🌾 **আমাদের পণ্য সমূহ:**
-• ধান বীজ • গম বীজ • ভুট্টা বীজ
-• সবজি বীজ • ফলের বীজ • সরগাম বীজ
-
-⭐ **কেন আলিফ সিডস?**
-✅ মানের নিশ্চয়তা
-✅ সেরা দাম
-✅ দ্রুত ডেলিভারি
-✅ বিশ্বস্ত সেবা`,
-    buttons: [
-      { label: '🌿 পণ্য দেখুন', action: 'navigate', path: '/' }
-    ]
+    test: t => /আলিফ|alif|সম্পর্কে|about|company|কোম্পানি|কারা|who are|what is|কোথায়|where|bangladesh/.test(t),
+    response: `🌱 **আলিফ সিডস সম্পর্কে:**\n\nবাংলাদেশের একটি **বিশ্বস্ত বীজ বাজার** যা কৃষকদের উন্নত বীজ সরবরাহ করে।\n\n🌾 **পণ্য তালিকা:**\nধান · গম · ভুট্টা · সরগাম · সবজি বীজ · ফলের বীজ · তেল ফসল বীজ\n\n⭐ **কেন আলিফ সিডস?**\n✅ মানের নিশ্চয়তা  ✅ সেরা দাম\n✅ দ্রুত ডেলিভারি  ✅ বিশ্বস্ত সেবা`,
+    buttons: [{ label: '🌿 পণ্য দেখুন', action: 'navigate', path: '/' }]
   },
   {
     id: 'price',
-    keywords: [
-      'দাম', 'price', 'মূল্য', 'cost', 'কত', 'কতো', 'rate', 'রেট', 'টাকা', 'taka',
-      'সস্তা', 'cheap', 'discounts', 'ছাড়', 'offer', 'অফার', 'কমদামে', 'affordable'
-    ],
-    response: `💰 **দাম সম্পর্কে:**
-
-আমাদের সব পণ্যের দাম সরাসরি পণ্য পেজে দেখতে পাবেন।
-
-🎉 **বিশেষ ছাড়:**
-• বেশি পরিমাণে কিনলে সাশ্রয়
-• ৫ কেজি+ অর্ডারে **ডেলিভারি ফ্রি**
-
-সব পণ্যের দাম দেখতে নিচে ক্লিক করুন! 👇`,
-    buttons: [
-      { label: '💸 পণ্যের দাম দেখুন', action: 'navigate', path: '/' }
-    ]
+    test: t => /দাম|price|মূল্য|cost|কত|rate|রেট|সস্তা|cheap|ছাড়|offer|অফার|affordable|কমদামে/.test(t) && !/ডেলিভারি|delivery/.test(t),
+    response: `💰 **দাম সম্পর্কে:**\n\nসব পণ্যের দাম পণ্য পেজে সরাসরি দেখতে পাবেন।\n\n🎉 **বিশেষ সুবিধা:**\n• বেশি পরিমাণে কিনলে সাশ্রয়\n• **৫ কেজি+** অর্ডারে ডেলিভারি ফ্রি!\n\nনিচে ক্লিক করে সব দাম দেখুন 👇`,
+    buttons: [{ label: '💸 পণ্যের দাম দেখুন', action: 'navigate', path: '/' }]
   },
   {
     id: 'track',
-    keywords: [
-      'ট্র্যাক', 'track', 'অর্ডার কোথায়', 'কোথায় আছে', 'status', 'স্ট্যাটাস', 'update',
-      'আপডেট', 'delivery status', 'কখন আসবে', 'when will', 'কত সময়'
-    ],
-    response: `📍 **অর্ডার ট্র্যাকিং:**
-
-বর্তমানে অর্ডার দেওয়ার পর আমাদের টিম আপনার দেওয়া ফোনে **কনফার্মেশন কল** দেবে।
-
-📞 ডেলিভারির আগে আপনাকে জানানো হবে।
-
-📱 যেকোনো আপডেটের জন্য আমাদের সাথে যোগাযোগ করুন।`,
-    buttons: [
-      { label: '📞 কল করুন', action: 'phone', value: 'tel:+8801234567890' }
-    ]
-  }
+    test: t => /ট্র্যাক|track|অর্ডার কোথায়|status|স্ট্যাটাস|কখন আসবে|when will|delivery status|কত সময়/.test(t),
+    response: `📍 **অর্ডার ট্র্যাকিং:**\n\nঅর্ডার দেওয়ার পর আমাদের টিম আপনার ফোনে **কনফার্মেশন কল** দেবে।\n\n📞 ডেলিভারির আগেও জানানো হবে।\n📱 যেকোনো আপডেটের জন্য ফোন করুন।`,
+    buttons: [{ label: '📞 কল করুন', action: 'phone', value: 'tel:+8801234567890' }]
+  },
+  {
+    id: 'seed_info',
+    test: t => /বীজ লাগানো|কিভাবে লাগাব|চাষ|farming|cultivation|grow|রোপণ|বপন|sowing|planting|fertilizer|সার|কখন লাগাব|when to plant/.test(t),
+    response: `🌱 **বীজ চাষের সাধারণ টিপস:**\n\n🌧️ **বপনের সময়:**\n• ধান: আষাঢ়–শ্রাবণ (বোরো: পৌষ–মাঘ)\n• গম: অগ্রহায়ণ–পৌষ\n• ভুট্টা: রবি ও খরিপ উভয় মৌসুম\n• সবজি: বারোমাসি রকম ভেদে আলাদা\n\n💡 **পরামর্শ:** নির্দিষ্ট পণ্যের নাম বললে আরও বিস্তারিত জানাতে পারব!\n\nআমাদের বিশেষজ্ঞদের সাথে কথা বলুন 👇`,
+    buttons: [{ label: '📞 বিশেষজ্ঞের পরামর্শ', action: 'phone', value: 'tel:+8801234567890' }]
+  },
 ];
 
 const quickReplies = [
   { label: '🛒 অর্ডার করব', id: 'order' },
   { label: '🚚 ডেলিভারি চার্জ', id: 'delivery' },
   { label: '💳 পেমেন্ট', id: 'payment' },
-  { label: '📦 স্টক চেক করুন', id: 'stock_prompt' },
+  { label: '📦 স্টক চেক', id: 'stock_prompt' },
   { label: '📞 যোগাযোগ', id: 'contact' },
+  { label: '🌱 চাষ পরামর্শ', id: 'seed_info' },
 ];
 
-function findResponse(text) {
-  const lowerText = text.toLowerCase();
-  let bestMatch = null;
-  let bestScore = 0;
-
-  for (const item of knowledgeBase) {
-    let score = 0;
-    for (const kw of item.keywords) {
-      if (lowerText.includes(kw.toLowerCase())) {
-        score += kw.length; // longer keyword matches score higher
-      }
-    }
-    if (score > bestScore) {
-      bestScore = score;
-      bestMatch = item;
-    }
+function findKnowledge(text) {
+  const t = text.toLowerCase();
+  // Check if it's a product synonym (auto-trigger stock search)
+  for (const s of synonymMap) {
+    if (s.patterns.some(p => t.includes(p))) return '__stock__';
   }
-  return bestScore > 0 ? bestMatch : null;
+  // Check Bengali product names directly
+  const banglaProducts = ['ধান','গম','ভুট্টা','সরগাম','সবজি','টমেটো','সরিষা','মসুর','আলু','পেঁয়াজ','মরিচ','রসুন','পাট','ফুলকপি','বাঁধাকপি','করলা','বেগুন','ঢেঁড়স','শসা','লাউ','পালং','সূর্যমুখী'];
+  if (banglaProducts.some(p => t.includes(p))) return '__stock__';
+
+  for (const k of knowledgeBase) {
+    if (k.test(t)) return k;
+  }
+  return null;
 }
 
-// =============================================
-// SYNONYM MAP: English, transliteration, misspellings → Bangla search term
-// =============================================
-const synonymMap = [
-  // Rice / Dhan
-  { patterns: ['rice', 'rais', 'ries', 'dhan', 'dhaan', 'daan', 'daan bij', 'dn', 'dhan bij', 'chan'], bangla: 'ধান' },
-  // Wheat / Gom
-  { patterns: ['wheat', 'weat', 'wheet', 'gom', 'gom bij', 'goum', 'gam', 'gum bij'], bangla: 'গম' },
-  // Corn / Maize / Bhutta
-  { patterns: ['corn', 'maize', 'bhutta', 'bhuttta', 'bhutra', 'bhuta', 'vituta', 'corn seed', 'maize seed', 'ভুট্টা বীজ'], bangla: 'ভুট্টা' },
-  // Sorghum / Sudan / Sarghum
-  { patterns: ['sorgum', 'sorghum', 'sorghum', 'sorgham', 'sudan', 'sudan grass', 'sarghum', 'sergam', 'sorhum', 'sorgam'], bangla: 'সরগাম' },
-  // Vegetable seeds
-  { patterns: ['vegetable', 'vegitable', 'shobji', 'sobji', 'sobzi', 'shobji bij', 'veg', 'veges', 'sabzi'], bangla: 'সবজি' },
-  // Tomato
-  { patterns: ['tomato', 'tomate', 'tometo', 'tamato', 'tomato bij'], bangla: 'টমেটো' },
-  // Mustard / Sarisha
-  { patterns: ['mustard', 'sarisha', 'sarsa', 'sarso', 'sarisha bij', 'mustrad'], bangla: 'সরিষা' },
-  // Lentil / Masur
-  { patterns: ['lentil', 'masur', 'masor', 'masoor', 'dal', 'daal'], bangla: 'মসুর' },
-  // Potato / Alu
-  { patterns: ['potato', 'alu', 'aloo', 'poteto', 'poteto bij', 'alu bij'], bangla: 'আলু' },
-  // Onion seeds
-  { patterns: ['onion', 'piaz', 'peyaz', 'piyaz', 'onion seed'], bangla: 'পেঁয়াজ' },
-  // Chili
-  { patterns: ['chili', 'chilli', 'morich', 'mirchi', 'chili seed', 'red chili'], bangla: 'মরিচ' },
-  // Garlic
-  { patterns: ['garlic', 'rasun', 'rashun', 'rasoon'], bangla: 'রসুন' },
-];
-
-function normalizeSynonym(text) {
-  const lower = text.toLowerCase().trim();
-  for (const entry of synonymMap) {
-    if (entry.patterns.some(p => lower.includes(p))) {
-      return entry.bangla;
-    }
+function isStockRelated(text) {
+  const t = text.toLowerCase();
+  const stockWords = ['স্টক','stock','আছে','পাওয়া যায়','পাব','available','আছে কি','bij ache','seed available'];
+  if (stockWords.some(w => t.includes(w))) return true;
+  for (const s of synonymMap) {
+    if (s.patterns.some(p => t.includes(p))) return true;
   }
-  return lower;
+  const banglaProducts = ['ধান','গম','ভুট্টা','সরগাম','সবজি','টমেটো','সরিষা','মসুর','আলু','পেঁয়াজ','মরিচ','রসুন'];
+  return banglaProducts.some(p => t.includes(p));
 }
 
-function fuzzyMatch(productName, query) {
-  const pn = productName.toLowerCase();
-  const q = query.toLowerCase();
-  if (pn.includes(q) || q.includes(pn)) return true;
-  // Character overlap scoring
-  let matches = 0;
-  for (const ch of q) {
-    if (pn.includes(ch)) matches++;
-  }
-  return matches / Math.max(q.length, 1) > 0.6;
-}
-
-function isStockQuery(text) {
-  const lowerText = text.toLowerCase();
-  const stockKeywords = [
-    'স্টক', 'stock', 'আছে', 'পাওয়া যায়', 'পাব', 'available', 'কি পাব',
-    'পাওয়া', 'পাচ্ছি না', 'পাচ্ছি', 'আছে কি', 'in stock', 'out of stock',
-    'আছে কিনা', 'কিনতে পারব', 'বীজ আছে', 'seed available', 'bij ache', 'bij pabo'
-  ];
-  // Also treat as stock query if it matches any synonym (product name search)
-  const matchesSynonym = synonymMap.some(e => e.patterns.some(p => lowerText.includes(p)));
-  return stockKeywords.some(kw => lowerText.includes(kw)) || matchesSynonym;
-}
-
-function extractProductName(text) {
-  const removeWords = [
-    'স্টক', 'stock', 'আছে', 'আছে কি', 'আছে কিনা', 'পাওয়া যায়', 'পাব', 'available',
-    'কি', 'কিনা', 'কিনতে পারব', 'বীজের', 'বীজ এর', 'er', 'এর', 'seed', 'koba', 'পাচ্ছি',
-    'কোথায়', 'পাচ্ছি না', 'দেখাও', 'দেখান', 'in', 'of', 'out', 'is', 'that', 'bij', 'বীজ',
-    'আমাকে', 'দেখতে', 'চাই', 'জানতে', 'চেক', 'check', 'find'
-  ];
-  let query = text.toLowerCase();
-  for (const w of removeWords) {
-    query = query.replace(new RegExp(`\\b${w}\\b`, 'gi'), '').trim();
-  }
-  return normalizeSynonym(query.trim() || text.trim());
+function getSearchQuery(text) {
+  const synorm = normalizeSynonym(text);
+  if (synorm !== text.toLowerCase().trim()) return synorm;
+  // Remove junk words
+  const junk = ['স্টক','stock','আছে','আছে কি','আছে কিনা','পাওয়া যায়','পাব','available','কি','কিনা','বীজের','বীজ','seed','bij','এর','er','in','of','out','is','that','আমাকে','দেখাও','চেক','check'];
+  let q = text.toLowerCase();
+  for (const w of junk) q = q.replace(new RegExp(`\\b${w}\\b`, 'gi'), '').trim();
+  return normalizeSynonym(q.trim() || text.trim());
 }
 
 export default function ChatBot() {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      from: 'bot',
-      text: `আস্সালামু আলাইকুম! 👋 **আলিফ সিডস**-এ স্বাগতম!\n\nআমি আপনাকে অর্ডার, ডেলিভারি, স্টক সহ সব বিষয়ে সাহায্য করতে পারব। নিচের বাটনে চাপুন বা আপনার প্রশ্ন লিখুন!`,
-      buttons: [],
-      time: new Date()
-    }
-  ]);
+  const [messages, setMessages] = useState([{
+    id: 1, from: 'bot', time: new Date(), buttons: [],
+    text: `আস্সালামু আলাইকুম! 👋 **আলিফ সিডস**-এ স্বাগতম!\n\nআমাকে যেকোনো বিষয় জিজ্ঞেস করুন — বাংলায়, ইংরেজিতে বা বাংলিশে! পণ্যের নাম লিখলে সাথে সাথে স্টক চেক করব। 🌿`
+  }]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [hasUnread, setHasUnread] = useState(true);
-  const [stockPrompt, setStockPrompt] = useState(false);
+  const [stockMode, setStockMode] = useState(false);
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
   useEffect(() => {
-    if (isOpen) setHasUnread(false);
+    if (isOpen) {
+      setHasUnread(false);
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
   }, [isOpen]);
 
-  const addBotMessage = (text, buttons = [], delay = 600) => {
+  const addBot = (text, buttons = [], delay = 500) => {
     setIsTyping(true);
     setTimeout(() => {
       setIsTyping(false);
-      setMessages(prev => [...prev, { id: Date.now(), from: 'bot', text, buttons, time: new Date() }]);
+      setMessages(p => [...p, { id: Date.now(), from: 'bot', text, buttons, time: new Date() }]);
     }, delay);
   };
 
-  const addUserMessage = (text) => {
-    setMessages(prev => [...prev, { id: Date.now(), from: 'user', text, buttons: [], time: new Date() }]);
-  };
+  const addUser = (text) => setMessages(p => [...p, { id: Date.now(), from: 'user', text, buttons: [], time: new Date() }]);
 
   const handleAction = (btn) => {
-    if (btn.action === 'navigate') {
-      setIsOpen(false);
-      navigate(btn.path);
-    } else if (btn.action === 'phone') {
-      window.location.href = btn.value;
-    } else if (btn.action === 'view_product') {
-      setIsOpen(false);
-      navigate(`/product/${btn.productId}`);
-    }
+    if (btn.action === 'navigate') { setIsOpen(false); navigate(btn.path); }
+    else if (btn.action === 'phone') { window.location.href = btn.value; }
+    else if (btn.action === 'view_product') { setIsOpen(false); navigate(`/product/${btn.productId}`); }
   };
 
-  const handleStockCheck = async (rawQuery) => {
-    setStockPrompt(false);
-    setIsTyping(true);
-    // Normalize: translate English/misspelled to Bangla
+  const doStockCheck = async (rawQuery) => {
     const query = normalizeSynonym(rawQuery);
+    setIsTyping(true);
+    setStockMode(false);
     try {
       const res = await api.get('products/');
-      const products = res.data;
-      const matched = products.filter(p =>
-        p.name.toLowerCase().includes(query.toLowerCase()) ||
-        (p.category_name && p.category_name.toLowerCase().includes(query.toLowerCase())) ||
+      const all = res.data;
+      const matched = all.filter(p =>
+        p.name.toLowerCase().includes(query) ||
+        (p.category_name && p.category_name.toLowerCase().includes(query)) ||
         fuzzyMatch(p.name, query) ||
         fuzzyMatch(p.name, rawQuery)
       );
-
       setIsTyping(false);
-      if (matched.length === 0) {
-        addBotMessage(
-          `দুঃখিত, **"${rawQuery}"** নামে কোনো পণ্য খুঁজে পাইনি।\n\nঅনুগ্রহ করে অন্য নামে সার্চ করুন অথবা আমাদের সম্পূর্ণ পণ্য তালিকা দেখুন।`,
-          [{ label: '🌿 সব পণ্য দেখুন', action: 'navigate', path: '/' }],
-          0
+      if (!matched.length) {
+        addBot(
+          `দুঃখিত! **"${rawQuery}"** নামে কোনো পণ্য পাইনি।\n\nঅন্য নাম দিয়ে চেষ্টা করুন যেমন: ধান, গম, ভুট্টা, সরগাম ইত্যাদি।`,
+          [{ label: '🌿 সব পণ্য দেখুন', action: 'navigate', path: '/' }], 0
         );
       } else {
         const lines = matched.slice(0, 5).map(p =>
           `${p.in_stock ? '✅' : '❌'} **${p.name}** — ৳${p.price}/${p.unit || 'কেজি'} — ${p.in_stock ? 'স্টকে আছে' : 'স্টক শেষ'}`
         ).join('\n');
-
-        const actionButtons = matched.slice(0, 3).map(p => (
-          { label: `👁️ ${p.name.slice(0, 14)} দেখুন`, action: 'view_product', productId: p.id }
-        ));
+        const btns = matched.slice(0, 3).map(p => ({ label: `👁️ ${p.name.slice(0, 12)}...`, action: 'view_product', productId: p.id }));
         if (matched.some(p => p.in_stock)) {
-          actionButtons.push({ label: '🛒 অর্ডার করুন', action: 'navigate', path: `/product/${matched.find(p => p.in_stock)?.id}` });
+          btns.push({ label: '🛒 অর্ডার করুন', action: 'navigate', path: `/product/${matched.find(p => p.in_stock).id}` });
         }
-
-        addBotMessage(
-          `🔍 **"${rawQuery}" এর ফলাফল (${matched.length}টি পণ্য):**\n\n${lines}`,
-          actionButtons,
-          0
-        );
+        addBot(`🔍 **"${rawQuery}" এর ফলাফল (${matched.length}টি):**\n\n${lines}`, btns, 0);
       }
     } catch {
       setIsTyping(false);
-      addBotMessage('দুঃখিত, পণ্যের তথ্য লোড করতে সমস্যা হচ্ছে। একটু পরে আবার চেষ্টা করুন।', [], 0);
+      addBot('পণ্যের তথ্য লোড করতে সমস্যা হচ্ছে। একটু পরে চেষ্টা করুন।', [], 0);
     }
   };
 
   const handleSend = async (text) => {
-    const userText = (text || input).trim();
+    const userText = (text !== undefined ? text : input).trim();
     if (!userText) return;
     setInput('');
-    addUserMessage(userText);
+    addUser(userText);
 
-    if (stockPrompt) {
-      await handleStockCheck(userText);
-      return;
-    }
+    if (stockMode) { await doStockCheck(userText); return; }
+    if (isStockRelated(userText)) { await doStockCheck(getSearchQuery(userText)); return; }
 
-    if (isStockQuery(userText)) {
-      const productName = extractProductName(userText);
-      await handleStockCheck(productName);
-      return;
-    }
+    const match = findKnowledge(userText);
+    if (match === '__stock__') { await doStockCheck(getSearchQuery(userText)); return; }
+    if (match) { addBot(match.response, match.buttons); return; }
 
-    const match = findResponse(userText);
-    if (match) {
-      addBotMessage(match.response, match.buttons);
-    } else {
-      addBotMessage(
-        `আপনার প্রশ্নটি ভালোভাবে বুঝতে পারিনি 🙁\n\nনিচের বিষয়গুলো সম্পর্কে জিজ্ঞেস করতে পারেন:\n• অর্ডার / Order\n• ডেলিভারি / Delivery\n• পেমেন্ট / Payment\n• পণ্যের স্টক / Product stock\n• যোগাযোগ / Contact\n\nঅথবা সরাসরি কল করুন! 📞`,
-        [{ label: '📞 কল করুন', action: 'phone', value: 'tel:+8801234567890' }]
-      );
-    }
+    addBot(
+      `বুঝতে পারিনি 🙁 তবে নিচের যেকোনো বিষয়ে জিজ্ঞেস করতে পারেন:\n\n• **অর্ডার করার নিয়ম** / How to order\n• **ডেলিভারি চার্জ** / Delivery charge\n• **পেমেন্ট** / Payment\n• **পণ্যের নাম** (যেমন: dhan, rice, ধান, gom)\n• **যোগাযোগ** / Contact\n\nঅথবা সরাসরি কল করুন! 📞`,
+      [{ label: '📞 কল করুন', action: 'phone', value: 'tel:+8801234567890' }]
+    );
   };
 
-  const handleQuickReply = async (id) => {
+  const handleQuick = (id) => {
     if (id === 'stock_prompt') {
-      addUserMessage('📦 পণ্যের স্টক চেক করতে চাই');
-      setStockPrompt(true);
-      addBotMessage('কোন পণ্যের স্টক চেক করতে চান? পণ্যের নাম লিখুন 👇\n_(উদাহরণ: ধান, গম, ভুট্টা, সরগাম)_', []);
+      addUser('📦 পণ্যের স্টক চেক করতে চাই');
+      setStockMode(true);
+      addBot('কোন পণ্যের স্টক চেক করতে চান?\n_(উদাহরণ: rice, dhan, ধান, gom, corn...)_', []);
       return;
     }
-    const match = knowledgeBase.find(k => k.id === id);
-    if (match) {
-      addUserMessage(quickReplies.find(q => q.id === id)?.label || id);
-      addBotMessage(match.response, match.buttons);
+    const k = knowledgeBase.find(x => x.id === id);
+    if (k) {
+      addUser(quickReplies.find(q => q.id === id)?.label || id);
+      addBot(k.response, k.buttons);
     }
   };
 
-  const formatText = (text) => {
-    return text.split('\n').map((line, i, arr) => {
-      const parts = line.split(/(\*\*.*?\*\*)/g).map((part, j) => {
-        if (part.startsWith('**') && part.endsWith('**')) {
-          return <strong key={j}>{part.slice(2, -2)}</strong>;
-        }
-        if (part.startsWith('_') && part.endsWith('_')) {
-          return <em key={j} className="text-gray-500 text-xs">{part.slice(1, -1)}</em>;
-        }
-        return part;
-      });
-      return <span key={i}>{parts}{i < arr.length - 1 && <br />}</span>;
-    });
+  const fmt = (text) => text.split('\n').map((line, i, arr) => (
+    <span key={i}>
+      {line.split(/(\*\*[^*]+\*\*)/g).map((part, j) =>
+        part.startsWith('**') && part.endsWith('**')
+          ? <strong key={j}>{part.slice(2, -2)}</strong>
+          : part.startsWith('_') && part.endsWith('_')
+          ? <em key={j} className="text-gray-400 text-xs">{part.slice(1, -1)}</em>
+          : part
+      )}
+      {i < arr.length - 1 && <br />}
+    </span>
+  ));
+
+  // Compute max-height of chat window dynamically
+  // Phone button: bottom-6 (24px), Chat button: bottom-24 (96px)
+  // Window sits just above chat button with 8px gap
+  const chatWindowStyle = {
+    position: 'fixed',
+    right: '24px',
+    bottom: '112px',       // just above chat button (96px) + 16px gap
+    width: '340px',
+    maxHeight: 'calc(100vh - 130px)', // never exceed viewport
+    display: 'flex',
+    flexDirection: 'column',
+    borderRadius: '16px',
+    overflow: 'hidden',
+    boxShadow: '0 20px 60px rgba(0,0,0,0.28)',
+    zIndex: 50,
+    animation: 'chatIn 0.28s cubic-bezier(0.4,0,0.2,1)',
   };
 
   return (
     <>
-      {/* Floating Chat Bubble */}
+      {/* Chat Bubble Button */}
       <button
         onClick={() => setIsOpen(o => !o)}
-        className="fixed bottom-24 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
-        style={{ background: 'linear-gradient(135deg,#154316,#2a6f2e)', boxShadow: '0 8px 30px rgba(21,67,22,0.55)' }}
+        style={{ background: 'linear-gradient(135deg,#154316,#2a6f2e)', boxShadow: '0 6px 24px rgba(21,67,22,0.5)', bottom: '96px', right: '24px' }}
+        className="fixed z-50 w-14 h-14 rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-200"
         title="চ্যাট সহায়তা"
       >
         {isOpen
-          ? <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
-          : <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+          ? <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12"/></svg>
+          : <svg className="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
         }
         {hasUnread && !isOpen && (
           <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center font-bold animate-pulse">1</span>
@@ -461,56 +325,41 @@ export default function ChatBot() {
 
       {/* Chat Window */}
       {isOpen && (
-        <div
-          className="fixed bottom-44 right-6 z-50 flex flex-col rounded-2xl overflow-hidden"
-          style={{ width: '340px', maxHeight: '560px', boxShadow: '0 25px 70px rgba(0,0,0,0.25)', animation: 'chatSlideUp 0.3s cubic-bezier(0.4,0,0.2,1)' }}
-        >
+        <div style={chatWindowStyle}>
           {/* Header */}
-          <div style={{ background: 'linear-gradient(135deg,#154316,#2a6f2e)' }} className="p-4 flex-shrink-0">
+          <div style={{ background: 'linear-gradient(135deg,#154316,#2a6f2e)', flexShrink: 0 }} className="px-4 py-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-xl">🌱</div>
-              <div className="flex-1">
-                <p className="text-white font-bold text-sm">আলিফ সিডস সহায়তা</p>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 bg-green-300 rounded-full animate-pulse"></div>
+              <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-lg flex-shrink-0">🌱</div>
+              <div className="flex-1 min-w-0">
+                <p className="text-white font-bold text-sm leading-tight">আলিফ সিডস সহায়তা</p>
+                <div className="flex items-center gap-1 mt-0.5">
+                  <div className="w-1.5 h-1.5 bg-green-300 rounded-full animate-pulse"></div>
                   <p className="text-green-200 text-xs">সবসময় আপনার পাশে 💚</p>
                 </div>
               </div>
-              <button onClick={() => setIsOpen(false)} className="text-white/60 hover:text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              <button onClick={() => setIsOpen(false)} className="text-white/70 hover:text-white flex-shrink-0 ml-1">
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
               </button>
             </div>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto bg-gray-50 p-3 space-y-3" style={{ minHeight: '250px', maxHeight: '310px' }}>
+          <div className="flex-1 overflow-y-auto bg-gray-50 p-3 space-y-2.5" style={{ minHeight: '180px' }}>
             {messages.map(msg => (
-              <div key={msg.id} className={`flex flex-col ${msg.from === 'user' ? 'items-end' : 'items-start'} gap-1`}>
+              <div key={msg.id} className={`flex flex-col gap-1 ${msg.from === 'user' ? 'items-end' : 'items-start'}`}>
                 <div className="flex items-end gap-2">
-                  {msg.from === 'bot' && (
-                    <div className="w-7 h-7 rounded-full bg-green-800 text-xs flex items-center justify-center flex-shrink-0">🌱</div>
-                  )}
+                  {msg.from === 'bot' && <div className="w-6 h-6 rounded-full bg-green-800 text-xs flex items-center justify-center flex-shrink-0 mb-0.5">🌱</div>}
                   <div
-                    className={`max-w-[85%] px-3 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                      msg.from === 'user'
-                        ? 'text-white rounded-br-sm'
-                        : 'bg-white text-gray-800 rounded-bl-sm shadow-sm border border-gray-100'
-                    }`}
+                    className={`max-w-[82%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${msg.from === 'user' ? 'text-white rounded-br-sm' : 'bg-white text-gray-800 rounded-bl-sm shadow-sm border border-gray-100'}`}
                     style={msg.from === 'user' ? { background: 'linear-gradient(135deg,#154316,#2a6f2e)' } : {}}
-                  >
-                    {formatText(msg.text)}
-                  </div>
+                  >{fmt(msg.text)}</div>
                 </div>
-                {/* Action Buttons inside message */}
-                {msg.buttons && msg.buttons.length > 0 && (
-                  <div className={`flex flex-wrap gap-1.5 mt-1 ${msg.from === 'bot' ? 'ml-9' : ''}`}>
+                {msg.buttons?.length > 0 && (
+                  <div className={`flex flex-wrap gap-1.5 ${msg.from === 'bot' ? 'ml-8' : ''}`}>
                     {msg.buttons.map((btn, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handleAction(btn)}
-                        className="text-xs px-3 py-1.5 rounded-full font-medium transition-all hover:scale-105 hover:shadow-md"
-                        style={{ background: 'linear-gradient(135deg,#154316,#2a6f2e)', color: 'white' }}
-                      >
+                      <button key={i} onClick={() => handleAction(btn)}
+                        className="text-xs px-2.5 py-1.5 rounded-full font-medium transition-all hover:scale-105 hover:shadow-md"
+                        style={{ background: 'linear-gradient(135deg,#154316,#2a6f2e)', color: 'white' }}>
                         {btn.label}
                       </button>
                     ))}
@@ -518,66 +367,51 @@ export default function ChatBot() {
                 )}
               </div>
             ))}
-
-            {/* Typing indicator */}
             {isTyping && (
               <div className="flex items-end gap-2">
-                <div className="w-7 h-7 rounded-full bg-green-800 text-xs flex items-center justify-center">🌱</div>
-                <div className="bg-white px-4 py-3 rounded-2xl rounded-bl-sm shadow-sm">
-                  <div className="flex gap-1">
-                    {[0, 150, 300].map(d => (
-                      <div key={d} className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{ animationDelay: `${d}ms` }}></div>
-                    ))}
-                  </div>
+                <div className="w-6 h-6 rounded-full bg-green-800 text-xs flex items-center justify-center">🌱</div>
+                <div className="bg-white px-4 py-2.5 rounded-2xl rounded-bl-sm shadow-sm">
+                  <div className="flex gap-1">{[0,150,300].map(d => <div key={d} className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{animationDelay:`${d}ms`}}/>)}</div>
                 </div>
               </div>
             )}
-            <div ref={messagesEndRef} />
+            <div ref={messagesEndRef}/>
           </div>
 
           {/* Quick Replies */}
-          <div className="bg-white border-t border-gray-100 px-2 py-2 flex gap-1.5 overflow-x-auto flex-shrink-0">
+          <div className="bg-white border-t border-gray-100 px-2 py-1.5 flex gap-1.5 overflow-x-auto flex-shrink-0" style={{scrollbarWidth:'none'}}>
             {quickReplies.map(q => (
-              <button
-                key={q.id}
-                onClick={() => handleQuickReply(q.id)}
-                className="flex-shrink-0 text-xs px-2.5 py-1.5 rounded-full border border-green-200 text-green-800 hover:bg-green-50 hover:border-green-500 transition-all whitespace-nowrap font-medium"
-              >
+              <button key={q.id} onClick={() => handleQuick(q.id)}
+                className="flex-shrink-0 text-xs px-2 py-1 rounded-full border border-green-200 text-green-800 hover:bg-green-50 hover:border-green-500 transition-all whitespace-nowrap font-medium">
                 {q.label}
               </button>
             ))}
           </div>
 
           {/* Input */}
-          <div className="bg-white border-t border-gray-100 p-3 flex gap-2 flex-shrink-0">
-            <input
-              type="text"
-              className="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-green-400 text-gray-700 placeholder-gray-400"
-              placeholder={stockPrompt ? 'পণ্যের নাম লিখুন...' : 'বার্তা লিখুন...'}
-              value={input}
-              onChange={e => setInput(e.target.value)}
+          <div className="bg-white border-t border-gray-100 px-3 py-2 flex gap-2 flex-shrink-0">
+            <input ref={inputRef} type="text"
+              className="flex-1 bg-gray-100 rounded-full px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-green-400 text-gray-700 placeholder-gray-400"
+              placeholder={stockMode ? 'পণ্যের নাম লিখুন (dhan, rice...)' : 'বাংলা বা English-এ লিখুন...'}
+              value={input} onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSend()}
-              autoFocus
             />
-            <button
-              onClick={() => handleSend()}
-              disabled={!input.trim()}
-              className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110 disabled:opacity-30"
-              style={{ background: 'linear-gradient(135deg,#154316,#2a6f2e)' }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-              </svg>
+            <button onClick={() => handleSend()} disabled={!input.trim()}
+              className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110 disabled:opacity-30 flex-shrink-0"
+              style={{ background: 'linear-gradient(135deg,#154316,#2a6f2e)' }}>
+              <svg className="h-4 w-4 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
             </button>
           </div>
         </div>
       )}
 
       <style>{`
-        @keyframes chatSlideUp {
-          from { opacity:0; transform:translateY(16px) scale(0.96); }
+        @keyframes chatIn {
+          from { opacity:0; transform:translateY(12px) scale(0.97); }
           to { opacity:1; transform:translateY(0) scale(1); }
         }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #d1fae5; border-radius: 4px; }
       `}</style>
     </>
   );
