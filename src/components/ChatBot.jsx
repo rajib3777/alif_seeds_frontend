@@ -40,14 +40,16 @@ function normalizeSynonym(text) {
 }
 
 // Fuzzy character match (handles minor typos)
+// Fuzzy character match (only for longer strings to avoid false positives)
 function fuzzyMatch(productName, query) {
   const pn = productName.toLowerCase();
   const q = query.toLowerCase().trim();
-  if (!q || q.length < 2) return false;
+  if (!q || q.length < 3) return false; // Ignore very short queries for fuzzy
   if (pn.includes(q) || q.includes(pn)) return true;
-  let matches = 0;
-  for (const ch of q) { if (pn.includes(ch)) matches++; }
-  return matches / Math.max(q.length, 1) > 0.65;
+  
+  // Standard Levenshtein-style check would be better, but for now we'll just 
+  // stick to stricter substring or word-based matches to avoid junk results.
+  return false; 
 }
 
 // =============================================
@@ -213,12 +215,24 @@ export default function ChatBot() {
     try {
       const res = await api.get('products/');
       const all = res.data;
-      const matched = all.filter(p =>
-        p.name.toLowerCase().includes(query) ||
-        (p.category_name && p.category_name.toLowerCase().includes(query)) ||
-        fuzzyMatch(p.name, query) ||
-        fuzzyMatch(p.name, rawQuery)
-      );
+      
+      // Filter logic: 
+      // 1. Must contain the normalized query (e.g. "ধান")
+      // 2. OR must contain the raw English query (e.g. "rice")
+      // 3. Category match must be exact or very close
+      const matched = all.filter(p => {
+        const name = p.name.toLowerCase();
+        const cat = (p.category_name || '').toLowerCase();
+        const q = query.toLowerCase();
+        const r = rawQuery.toLowerCase();
+        
+        // Stricter filtering
+        return name.includes(q) || 
+               name.includes(r) || 
+               (cat && (cat === q || cat === r)) ||
+               fuzzyMatch(name, q) || 
+               fuzzyMatch(name, r);
+      });
       setIsTyping(false);
       if (!matched.length) {
         addBot(
