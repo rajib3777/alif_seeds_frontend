@@ -8,7 +8,7 @@ import api from '../api';
 const synonymMap = [
   { patterns: ['rice','rais','ries','rize','dhan','dhaan','daan','dan','daan bij','dhanbi','dhan seed','dhan bij','chan','paddy'], bangla: 'ধান' },
   { patterns: ['wheat','weat','wheet','gom','gom bij','goum','gam','gum','gum bij','whet'], bangla: 'গম' },
-  { patterns: ['corn','maize','bhutta','bhuttta','bhutra','bhuta','vituta','corn seed','maize seed','bhuttar'], bangla: 'ভুট্টা' },
+  { patterns: ['corn','maize','bhutta','bhuttta','bhutra','bhuta','vituta','butta','vutta','vuta','corn seed','maize seed','bhuttar'], bangla: 'ভুট্টা' },
   { patterns: ['sorgum','sorghum','sorgham','sudan','sultan','sudan grass','sarghum','sergam','sorhum','sorgam','sorham','surgum'], bangla: 'সরগাম' },
   { patterns: ['vegetable','vegitable','vejetable','shobji','sobji','sobzi','shobji bij','veg','veges','sabzi','shak'], bangla: 'সবজি' },
   { patterns: ['tomato','tomate','tometo','tamato','tometo','tometo seed'], bangla: 'টমেটো' },
