@@ -25,7 +25,7 @@ export default function Checkout() {
   const extraWeight = Math.max(0, totalWeight - 0.5);
   const extraCharge = Math.ceil(extraWeight) * 10;
   
-  const deliveryCharge = baseCharge + extraCharge;
+  const deliveryCharge = totalWeight >= 5 ? 0 : (baseCharge + extraCharge);
   const grandTotal = subtotal + deliveryCharge;
 
   useEffect(() => {
@@ -244,7 +244,16 @@ export default function Checkout() {
 
               <div className="p-6 bg-darkGreen/50 border-t border-gray-700">
                 <div className="mb-4 bg-green-900/30 border border-green-500/20 p-3 rounded-lg text-sm text-gray-300">
-                  <span className="font-bold text-gold">{deliveryZone}</span> এর জন্য ডেলিভারি চার্জ হিসাব করা হচ্ছে (প্রথম ০.৫ কেজি বেস চার্জ, এরপর প্রতি কেজিতে +১০৳)
+                  {totalWeight >= 5 ? (
+                    <div className="flex items-center gap-2 text-green-400 font-bold">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      অভিনন্দন! ৫ কেজি বা তার বেশি অর্ডারে আপনার ডেলিভারি একদম ফ্রি।
+                    </div>
+                  ) : (
+                    <>
+                      <span className="font-bold text-gold">{deliveryZone}</span> এর জন্য ডেলিভারি চার্জ হিসাব করা হচ্ছে (প্রথম ০.৫ কেজি বেস চার্জ, এরপর প্রতি কেজিতে +১০৳)
+                    </>
+                  )}
                 </div>
                 <div className="flex justify-between items-center text-gray-400 mb-2">
                   <span>সাবটোটাল ({totalWeight} কেজি)</span>
@@ -252,7 +261,9 @@ export default function Checkout() {
                 </div>
                 <div className="flex justify-between items-center text-gray-400 mb-4">
                   <span>ডেলিভারি চার্জ</span>
-                  <span className="text-white">৳{deliveryCharge.toLocaleString()}</span>
+                  <span className={`${totalWeight >= 5 ? 'text-green-400 font-bold' : 'text-white'}`}>
+                    {totalWeight >= 5 ? 'ফ্রি (FREE)' : `৳${deliveryCharge.toLocaleString()}`}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center border-t border-gray-700 pt-4">
                   <span className="text-xl font-bold text-white">সর্বমোট</span>
@@ -382,7 +393,7 @@ export default function Checkout() {
                    </div>
                    <div className="flex justify-between py-3 border-b border-gray-100">
                       <span className="font-semibold text-gray-600">Delivery Charge:</span>
-                      <span className="text-gray-800 font-medium">{invoiceData.deliveryCharge === 0 ? 'FREE' : `BDT ${invoiceData.deliveryCharge.toLocaleString()}`}</span>
+                      <span className="text-gray-800 font-medium">{invoiceData.deliveryCharge === 0 || invoiceData.cart.reduce((s,i)=>s+i.quantity,0) >= 5 ? 'FREE' : `BDT ${invoiceData.deliveryCharge.toLocaleString()}`}</span>
                    </div>
                    <div className="flex justify-between py-4 mt-2 bg-green-50 px-4 rounded-lg">
                       <span className="text-xl font-bold text-green-800 uppercase">Grand Total:</span>

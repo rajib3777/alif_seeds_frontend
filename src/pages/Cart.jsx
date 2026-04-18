@@ -106,6 +106,53 @@ export default function Cart() {
             </motion.div>
           ))}
 
+          {/* Free Delivery Progress */}
+          {(() => {
+            const totalWeight = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const remaining = 5 - totalWeight;
+            const progress = Math.min(100, (totalWeight / 5) * 100);
+            
+            return (
+              <div className="p-6 bg-gold/5 border-t border-b border-gold/10">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center text-gold">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                    </div>
+                    <div>
+                      {remaining > 0 ? (
+                        <>
+                          <p className="text-white font-bold">ফ্রি ডেলিভারি অফার!</p>
+                          <p className="text-gold text-sm font-semibold">আর <span className="text-white text-lg underline decoration-gold/50">{remaining} কেজি</span> যোগ করলে ডেলিভারি চার্জ একদম ফ্রি!</p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-green-400 font-bold text-lg flex items-center gap-2">
+                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                             অভিনন্দন! আপনি ফ্রি ডেলিভারি পেয়েছেন।
+                          </p>
+                          <p className="text-gray-300 text-sm">আপনার অর্ডারের ওজন ৫ কেজি অতিক্রম করেছে।</p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-gold font-bold text-sm hidden md:block">
+                     প্রোগ্রেস: {totalWeight.toFixed(1)} / ৫ কেজি
+                  </div>
+                </div>
+                
+                {/* Progress Bar */}
+                <div className="w-full h-3 bg-darkGreen rounded-full overflow-hidden border border-white/5">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progress}%` }}
+                    className={`h-full ${remaining > 0 ? 'bg-gold' : 'bg-green-500'} shadow-[0_0_15px_rgba(235,180,85,0.3)]`}
+                  />
+                </div>
+              </div>
+            );
+          })()}
+
           {/* Total Row */}
           <div className="p-6 bg-darkGreen/50 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
