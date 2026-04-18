@@ -97,11 +97,12 @@ export default function ProductGrid() {
                     <span className="text-2xl font-bold text-white">৳{parseFloat(product.price).toLocaleString()}</span>
                     <button
                       disabled={!product.in_stock}
-                      onClick={() => { addToCart(product); navigate('/cart'); }}
-                      title="কার্টে যোগ করুন"
-                      className="w-10 h-10 rounded flex items-center justify-center bg-lightGreen text-white hover:bg-gold hover:text-darkGreen transition-colors disabled:opacity-50"
+                      onClick={(e) => { e.preventDefault(); addToCart(product); navigate('/cart'); }}
+                      title="অর্ডার করুন"
+                      className="px-4 py-2 rounded font-bold bg-gold text-darkGreen hover:bg-yellow-400 transition-all disabled:opacity-50 flex items-center gap-2 shadow-[0_0_15px_rgba(235,180,85,0.4)] hover:shadow-[0_0_25px_rgba(235,180,85,0.6)] animate-pulse hover:animate-none hover:-translate-y-1"
                     >
                       <ShoppingCartIcon />
+                      অর্ডার করুন
                     </button>
                   </div>
                 </div>

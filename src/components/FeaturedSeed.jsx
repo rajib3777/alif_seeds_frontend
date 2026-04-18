@@ -84,10 +84,10 @@ export default function FeaturedSeed() {
                 }
               }} 
               disabled={!productId}
-              className={`bg-transparent border-2 border-gold text-gold px-8 py-3 rounded-md transition-colors font-bold flex items-center gap-2 ${productId ? 'hover:bg-gold hover:text-darkGreen' : 'opacity-50 cursor-not-allowed'}`}
+              className={`px-8 py-3 rounded-md font-bold flex items-center gap-2 transition-all ${productId ? 'bg-gold text-darkGreen shadow-[0_0_20px_rgba(235,180,85,0.4)] animate-pulse hover:animate-none hover:scale-105 hover:bg-yellow-400' : 'bg-transparent border-2 border-gold text-gold opacity-50 cursor-not-allowed'}`}
             >
               <ShoppingCart className="w-5 h-5 text-current" />
-              {productId ? 'কার্টে যোগ করুন' : 'লোড হচ্ছে...'}
+              {productId ? 'অর্ডার করুন' : 'লোড হচ্ছে...'}
             </button>
           </motion.div>
         </div>

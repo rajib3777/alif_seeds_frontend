@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useCartStore } from '../store/useCartStore';
 import { motion } from 'framer-motion';
 
@@ -17,11 +17,19 @@ export default function ProductDetails() {
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [relatedProducts, setRelatedProducts] = useState([]);
 
   useEffect(() => {
     api.get(`products/${id}/`)
       .then(res => { setProduct(res.data); setLoading(false); })
       .catch(() => setLoading(false));
+      
+    api.get('products/')
+      .then(res => {
+        const others = res.data.filter(p => String(p.id) !== String(id)).slice(0, 4);
+        setRelatedProducts(others);
+      })
+      .catch(err => console.error(err));
   }, [id]);
 
   const handleAddToCart = () => {
@@ -127,14 +135,40 @@ export default function ProductDetails() {
                 >+</button>
               </div>
 
+            {/* Action Buttons */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
               <button
                 disabled={!product.in_stock}
                 onClick={handleAddToCart}
-                className={`flex-1 flex items-center justify-center gap-3 py-4 px-6 rounded-xl font-bold text-lg transition-all ${added ? 'bg-green-500 text-white scale-95' : 'bg-gold text-darkGreen hover:bg-yellow-400 hover:scale-105 shadow-[0_4px_20px_rgba(235,180,85,0.4)]'} disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm transition-all ${added ? 'bg-green-500 text-white' : 'bg-midGreen text-white border border-gold hover:bg-gold hover:text-darkGreen'} disabled:opacity-50`}
               >
-                <ShoppingCartIcon />
-                {added ? '✓ কার্টে যোগ হয়েছে!' : 'কার্টে যোগ করুন'}
+                <ShoppingCartIcon /> {added ? 'কার্টে যোগ হয়েছে' : 'কার্টে যোগ করুন'}
               </button>
+
+              <button
+                disabled={!product.in_stock}
+                onClick={() => { handleAddToCart(); navigate('/checkout'); }}
+                className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm bg-gold text-darkGreen hover:bg-yellow-400 hover:scale-105 shadow-[0_0_15px_rgba(235,180,85,0.4)] transition-all disabled:opacity-50 animate-pulse hover:animate-none"
+              >
+                🛍️ অর্ডার করুন
+              </button>
+
+              <a
+                href={`https://wa.me/8801334642219?text=${encodeURIComponent(`আমি ${product.name} অর্ডার করতে চাই।`)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm bg-[#25D366] text-white hover:bg-[#128C7E] hover:scale-105 transition-all"
+              >
+                💬 হোয়াটসঅ্যাপে অর্ডার
+              </a>
+
+              <a
+                href="tel:01334642219"
+                className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm bg-blue-600 text-white hover:bg-blue-700 hover:scale-105 transition-all cursor-pointer"
+              >
+                📞 কলের মাধ্যমে ক্রয়
+              </a>
+            </div>
             </div>
 
             {/* Go to cart button */}
@@ -150,6 +184,36 @@ export default function ProductDetails() {
             )}
           </motion.div>
         </div>
+
+        {/* Same Delivery Charge Related Products Section */}
+        {relatedProducts.length > 0 && (
+          <div className="mt-24 border-t border-white/10 pt-16">
+            <div className="text-center mb-12">
+              <h3 className="text-2xl md:text-3xl font-bold text-white flex flex-col md:flex-row items-center justify-center gap-4">
+                <span className="bg-gold text-darkGreen px-4 py-1.5 rounded-full text-sm uppercase tracking-widest animate-pulse shadow-[0_0_15px_rgba(235,180,85,0.5)]">অফার</span> 
+                একই ডেলিভারি চার্জে আরও প্রোডাক্ট অ্যাড করুন
+              </h3>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+              {relatedProducts.map(rp => (
+                <Link to={`/product/${rp.id}`} key={rp.id} className="bg-midGreen rounded-xl overflow-hidden shadow-lg border border-white/5 hover:-translate-y-2 transition-all block group">
+                  <div className="h-48 overflow-hidden relative">
+                    <img src={rp.image?.startsWith('/') || rp.image?.startsWith('http') ? rp.image : '/' + (rp.image||'cat1.png')} alt={rp.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" onError={(e) => e.target.src='/cat2.jpg'} />
+                  </div>
+                  <div className="p-5">
+                    <p className="text-xs text-gold uppercase mb-1 font-bold">{rp.category_name}</p>
+                    <h4 className="text-white font-bold text-lg mb-2 truncate">{rp.name}</h4>
+                    <div className="flex justify-between items-center mt-4">
+                      <p className="text-white font-bold text-xl">৳{parseFloat(rp.price).toLocaleString()}</p>
+                      <span className="text-gold text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity">দেখুন →</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );

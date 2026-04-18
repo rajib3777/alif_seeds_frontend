@@ -57,9 +57,27 @@ function fuzzyMatch(productName, query) {
 // =============================================
 const knowledgeBase = [
   {
+    id: 'salam',
+    test: t => /সালাম|salam|assalamu/.test(t),
+    response: `ওয়ালাইকুম আসসালাম! 👋 আমি **সুবর্ণা 👩**, আলিফ সিডসের এআই অ্যাসিস্ট্যান্ট।\n\nআমি আপনাকে সাহায্য করতে পারব:\n🌿 পণ্যের স্টক ও দাম জানতে\n🛒 কিভাবে অর্ডার করবেন\n🚚 ডেলিভারি চার্জ ও সময়\n💳 পেমেন্ট পদ্ধতি\n🌾 বীজ সম্পর্কিত যেকোনো তথ্য\n\nনিচের বাটনে চাপুন বা সরাসরি লিখুন! 😊`,
+    buttons: []
+  },
+  {
+    id: 'namaskar',
+    test: t => /নমস্কার|namaskar|nomoskar/.test(t),
+    response: `নমস্কার! 👋 আমি **সুবর্ণা 👩**, আলিফ সিডসের এআই অ্যাসিস্ট্যান্ট।\n\nআমি আপনাকে সাহায্য করতে পারব:\n🌿 পণ্যের স্টক ও দাম জানতে\n🛒 কিভাবে অর্ডার করবেন\n🚚 ডেলিভারি চার্জ ও সময়\n💳 পেমেন্ট পদ্ধতি\n🌾 বীজ সম্পর্কিত যেকোনো তথ্য\n\nনিচের বাটনে চাপুন বা সরাসরি লিখুন! 😊`,
+    buttons: []
+  },
+  {
     id: 'greeting',
-    test: t => /হ্যালো|হাই|সালাম|নমস্কার|আস্সালামু|hello|hi\b|hey\b|salaam|assalamu|good morning|good evening|কেমন আছ|শুভ সকাল|শুভ সন্ধ্যা/.test(t),
-    response: `আস্সালামু আলাইকুম! 👋 **আলিফ সিডস**-এ স্বাগতম!\n\nআমি আপনাকে সাহায্য করতে পারব:\n🌿 পণ্যের স্টক ও দাম জানতে\n🛒 কিভাবে অর্ডার করবেন\n🚚 ডেলিভারি চার্জ ও সময়\n💳 পেমেন্ট পদ্ধতি\n🌾 বীজ সম্পর্কিত যেকোনো তথ্য\n\nনিচের বাটনে চাপুন বা সরাসরি লিখুন! 😊`,
+    test: t => /হ্যালো|হাই|hello|hi\b|hey\b|good morning|good evening|শুভ সকাল|শুভ সন্ধ্যা/.test(t),
+    response: `হ্যালো! 👋 আমি **সুবর্ণা 👩**, আলিফ সিডসের এআই অ্যাসিস্ট্যান্ট।\n\nআমি আপনাকে সাহায্য করতে পারব:\n🌿 পণ্যের স্টক ও দাম জানতে\n🛒 কিভাবে অর্ডার করবেন\n🚚 ডেলিভারি চার্জ ও সময়\n💳 পেমেন্ট পদ্ধতি\n🌾 বীজ সম্পর্কিত যেকোনো তথ্য\n\nনিচের বাটনে চাপুন বা সরাসরি লিখুন! 😊`,
+    buttons: []
+  },
+  {
+    id: 'kemon_acho',
+    test: t => /কেমন|kemon|valo acho|how are/.test(t),
+    response: `আমি ভালো আছি, আলহামদুলিল্লাহ! আপনি কেমন আছেন? 😊`,
     buttons: []
   },
   {
@@ -87,13 +105,13 @@ const knowledgeBase = [
     id: 'return',
     test: t => /রিটার্ন|return|ফেরত|বাতিল|cancel|ক্যান্সেল|নষ্ট|damage|wrong|refund|রিফান্ড|exchange/.test(t),
     response: `🔄 **রিটার্ন ও বাতিল নীতি:**\n\n✅ পণ্য নষ্ট বা ভুল এলে ফেরত পাবেন\n✅ পণ্য পাওয়ার **২৪ ঘণ্টার মধ্যে** জানাতে হবে\n✅ ছবিসহ আমাদের ফোনে জানান\n✅ নতুন পণ্য পাঠানো হবে বিনামূল্যে\n\nআমরা আপনার সমস্যা সমাধান করতে প্রতিশ্রুতিবদ্ধ! 💚`,
-    buttons: [{ label: '📞 যোগাযোগ করুন', action: 'phone', value: 'tel:+8801234567890' }]
+    buttons: [{ label: '📞 যোগাযোগ করুন', action: 'phone', value: 'tel:01334642219' }]
   },
   {
     id: 'contact',
     test: t => /ফোন|phone|যোগাযোগ|contact|নম্বর|number|কল করব|call|হেল্প|help|সাহায্য|support|email|ইমেইল/.test(t),
-    response: `📞 **যোগাযোগের তথ্য:**\n\n📱 ফোন: **+880 1234-567890**\n📧 ইমেইল: **info@alifseeds.com**\n🕐 সময়: সকাল ৯টা – রাত ৯টা\n📅 সপ্তাহের ৭ দিন খোলা`,
-    buttons: [{ label: '📞 এখনই কল করুন', action: 'phone', value: 'tel:+8801234567890' }]
+    response: `📞 **যোগাযোগের তথ্য:**\n\n📱 ফোন: **01334642219**\n📧 ইমেইল: **info@alifseeds.com**\n🕐 সময়: সকাল ৯টা – রাত ৯টা\n📅 সপ্তাহের ৭ দিন খোলা`,
+    buttons: [{ label: '📞 এখনই কল করুন', action: 'phone', value: 'tel:01334642219' }]
   },
   {
     id: 'about',
@@ -111,13 +129,13 @@ const knowledgeBase = [
     id: 'track',
     test: t => /ট্র্যাক|track|অর্ডার কোথায়|status|স্ট্যাটাস|কখন আসবে|when will|delivery status|কত সময়/.test(t),
     response: `📍 **অর্ডার ট্র্যাকিং:**\n\nঅর্ডার দেওয়ার পর আমাদের টিম আপনার ফোনে **কনফার্মেশন কল** দেবে।\n\n📞 ডেলিভারির আগেও জানানো হবে।\n📱 যেকোনো আপডেটের জন্য ফোন করুন।`,
-    buttons: [{ label: '📞 কল করুন', action: 'phone', value: 'tel:+8801234567890' }]
+    buttons: [{ label: '📞 কল করুন', action: 'phone', value: 'tel:01334642219' }]
   },
   {
     id: 'seed_info',
     test: t => /বীজ লাগানো|কিভাবে লাগাব|চাষ|farming|cultivation|grow|রোপণ|বপন|sowing|planting|fertilizer|সার|কখন লাগাব|when to plant/.test(t),
     response: `🌱 **বীজ চাষের সাধারণ টিপস:**\n\n🌧️ **বপনের সময়:**\n• ধান: আষাঢ়–শ্রাবণ (বোরো: পৌষ–মাঘ)\n• গম: অগ্রহায়ণ–পৌষ\n• ভুট্টা: রবি ও খরিপ উভয় মৌসুম\n• সবজি: বারোমাসি রকম ভেদে আলাদা\n\n💡 **পরামর্শ:** নির্দিষ্ট পণ্যের নাম বললে আরও বিস্তারিত জানাতে পারব!\n\nআমাদের বিশেষজ্ঞদের সাথে কথা বলুন 👇`,
-    buttons: [{ label: '📞 বিশেষজ্ঞের পরামর্শ', action: 'phone', value: 'tel:+8801234567890' }]
+    buttons: [{ label: '📞 বিশেষজ্ঞের পরামর্শ', action: 'phone', value: 'tel:01334642219' }]
   },
 ];
 
@@ -128,6 +146,7 @@ const quickReplies = [
   { label: '📦 স্টক চেক', id: 'stock_prompt' },
   { label: '📞 যোগাযোগ', id: 'contact' },
   { label: '🌱 চাষ পরামর্শ', id: 'seed_info' },
+  { label: '📞 আমাকে কল করুন', id: 'call_now' },
 ];
 
 function findKnowledge(text) {
@@ -172,7 +191,7 @@ export default function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([{
     id: 1, from: 'bot', time: new Date(), buttons: [],
-    text: `আস্সালামু আলাইকুম! 👋 **আলিফ সিডস**-এ স্বাগতম!\n\nআমাকে যেকোনো বিষয় জিজ্ঞেস করুন — বাংলায়, ইংরেজিতে বা বাংলিশে! পণ্যের নাম লিখলে সাথে সাথে স্টক চেক করব। 🌿`
+    text: `হ্যালো! 👋 আমি **সুবর্ণা 👩**, আলিফ সিডসের এআই অ্যাসিস্ট্যান্ট।\n\nআমাকে যেকোনো বিষয় জিজ্ঞেস করুন — বাংলায়, ইংরেজিতে বা বাংলিশে! পণ্যের নাম লিখলে সাথে সাথে স্টক চেক করব। 🌿`
   }]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -270,7 +289,7 @@ export default function ChatBot() {
 
     addBot(
       `বুঝতে পারিনি 🙁 তবে নিচের যেকোনো বিষয়ে জিজ্ঞেস করতে পারেন:\n\n• **অর্ডার করার নিয়ম** / How to order\n• **ডেলিভারি চার্জ** / Delivery charge\n• **পেমেন্ট** / Payment\n• **পণ্যের নাম** (যেমন: dhan, rice, ধান, gom)\n• **যোগাযোগ** / Contact\n\nঅথবা সরাসরি কল করুন! 📞`,
-      [{ label: '📞 কল করুন', action: 'phone', value: 'tel:+8801234567890' }]
+      [{ label: '📞 কল করুন', action: 'phone', value: 'tel:01334642219' }]
     );
   };
 
@@ -279,6 +298,11 @@ export default function ChatBot() {
       addUser('📦 পণ্যের স্টক চেক করতে চাই');
       setStockMode(true);
       addBot('কোন পণ্যের স্টক চেক করতে চান?\n_(উদাহরণ: rice, dhan, ধান, gom, corn...)_', []);
+      return;
+    }
+    if (id === 'call_now') {
+      addUser('📞 আমাকে কল করুন');
+      addBot('আমাদের হেল্পলাইন নাম্বারে কল করুন!', [{ label: '📞 কল করুন', action: 'phone', value: 'tel:01334642219' }]);
       return;
     }
     const k = knowledgeBase.find(x => x.id === id);
@@ -343,9 +367,9 @@ export default function ChatBot() {
           {/* Header */}
           <div style={{ background: 'linear-gradient(135deg,#154316,#2a6f2e)', flexShrink: 0 }} className="px-4 py-3">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-lg flex-shrink-0">🌱</div>
+              <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-lg flex-shrink-0">👩</div>
               <div className="flex-1 min-w-0">
-                <p className="text-white font-bold text-sm leading-tight">আলিফ সিডস সহায়তা</p>
+                <p className="text-white font-bold text-sm leading-tight">সুবর্ণা 👩</p>
                 <div className="flex items-center gap-1 mt-0.5">
                   <div className="w-1.5 h-1.5 bg-green-300 rounded-full animate-pulse"></div>
                   <p className="text-green-200 text-xs">সবসময় আপনার পাশে 💚</p>
@@ -362,7 +386,7 @@ export default function ChatBot() {
             {messages.map(msg => (
               <div key={msg.id} className={`flex flex-col gap-1 ${msg.from === 'user' ? 'items-end' : 'items-start'}`}>
                 <div className="flex items-end gap-2">
-                  {msg.from === 'bot' && <div className="w-6 h-6 rounded-full bg-green-800 text-xs flex items-center justify-center flex-shrink-0 mb-0.5">🌱</div>}
+                  {msg.from === 'bot' && <div className="w-6 h-6 rounded-full bg-green-800 text-xs flex items-center justify-center flex-shrink-0 mb-0.5">👩</div>}
                   <div
                     className={`max-w-[82%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${msg.from === 'user' ? 'text-white rounded-br-sm' : 'bg-white text-gray-800 rounded-bl-sm shadow-sm border border-gray-100'}`}
                     style={msg.from === 'user' ? { background: 'linear-gradient(135deg,#154316,#2a6f2e)' } : {}}
@@ -383,7 +407,7 @@ export default function ChatBot() {
             ))}
             {isTyping && (
               <div className="flex items-end gap-2">
-                <div className="w-6 h-6 rounded-full bg-green-800 text-xs flex items-center justify-center">🌱</div>
+                <div className="w-6 h-6 rounded-full bg-green-800 text-xs flex items-center justify-center">👩</div>
                 <div className="bg-white px-4 py-2.5 rounded-2xl rounded-bl-sm shadow-sm">
                   <div className="flex gap-1">{[0,150,300].map(d => <div key={d} className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{animationDelay:`${d}ms`}}/>)}</div>
                 </div>

@@ -50,7 +50,7 @@ export default function Footer() {
         <div>
            <h4 className="font-bold text-lg mb-6 tracking-widest">Contact Us</h4>
            <div className="text-gray-400 text-sm space-y-4 flex flex-col">
-             <span><strong className="text-white">Hotline:</strong> +880 12 34 5678</span>
+             <span><strong className="text-white">Hotline:</strong> 01334642219</span>
              <span><strong className="text-white">Email:</strong> info@alifseeds.com</span>
              <span><strong className="text-white">Address:</strong> ঢাকা, বাংলাদেশ</span>
            </div>
