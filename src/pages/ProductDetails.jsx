@@ -159,14 +159,14 @@ export default function ProductDetails() {
                 rel="noreferrer"
                 className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm bg-[#25D366] text-white hover:bg-[#128C7E] hover:scale-105 transition-all"
               >
-                💬 হোয়াটসঅ্যাপে অর্ডার
+                💬 হোয়াটসঅ্যাপে অর্ডার করুন
               </a>
 
               <a
                 href="tel:01334642219"
                 className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm bg-blue-600 text-white hover:bg-blue-700 hover:scale-105 transition-all cursor-pointer"
               >
-                📞 কলের মাধ্যমে ক্রয়
+                📞 কলের মাধ্যমে অর্ডার করুন
               </a>
             </div>
             </div>
@@ -188,11 +188,14 @@ export default function ProductDetails() {
         {/* Same Delivery Charge Related Products Section */}
         {relatedProducts.length > 0 && (
           <div className="mt-24 border-t border-white/10 pt-16">
-            <div className="text-center mb-12">
-              <h3 className="text-2xl md:text-3xl font-bold text-white flex flex-col md:flex-row items-center justify-center gap-4">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
+              <h3 className="text-2xl md:text-3xl font-bold text-white flex flex-col md:flex-row items-center gap-4">
                 <span className="bg-gold text-darkGreen px-4 py-1.5 rounded-full text-sm uppercase tracking-widest animate-pulse shadow-[0_0_15px_rgba(235,180,85,0.5)]">অফার</span> 
-                একই ডেলিভারি চার্জে আরও প্রোডাক্ট অ্যাড করুন
+                কনফার্ম করার আগে আরো প্রোডাক্ট অ্যাড করতে চান?
               </h3>
+              <Link to="/" className="bg-transparent border-2 border-gold text-gold px-6 py-2 rounded-full font-bold hover:bg-gold hover:text-darkGreen transition-all flex items-center gap-2">
+                আরো বীজ দেখুন →
+              </Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
               {relatedProducts.map(rp => (
