@@ -131,7 +131,7 @@ export default function ProductGrid() {
                   </div>
                 </Link>
                 <div className="px-6 pb-6">
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center gap-2">
                     <span className="text-2xl font-bold text-white">৳{parseFloat(product.price).toLocaleString()}</span>
                     <button
                       disabled={!product.in_stock}
