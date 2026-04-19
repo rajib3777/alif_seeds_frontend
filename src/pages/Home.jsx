@@ -5,6 +5,7 @@ import ProductGrid from '../components/ProductGrid';
 import Testimonials from '../components/Testimonials';
 import Features from '../components/Features';
 import News from '../components/News';
+import RecentOrders from '../components/RecentOrders';
 import { Play } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -76,11 +77,11 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <FreeDeliveryBanner />
-      <FeaturedSeed />
+      <RecentOrders />
       <Categories />
-      <ParallaxBanner />
+      <FeaturedSeed />
       <ProductGrid />
+      <ParallaxBanner />
       <Testimonials />
       <Features />
       <News />

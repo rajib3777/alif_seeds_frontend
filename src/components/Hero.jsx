@@ -2,10 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const slides = [
-  { src: "/seed_rice.png",  label: "ধানের বীজ" },
-  { src: "/seed_wheat.png", label: "গমের বীজ" },
-  { src: "/seed_corn.png",  label: "ভুট্টার বীজ" },
-  { src: "/seed_veg.png",   label: "সবজির বীজ" },
+  { src: "/carousel_1.png", label: "প্রিমিয়াম সীডস ও এগ্রো সার্ভিস" },
+  { src: "/carousel_2.jpg", label: "রেড জোয়ার (সোরগাম সুদান গ্রাস)" },
 ];
 
 export default function Hero() {
@@ -19,71 +17,66 @@ export default function Hero() {
   }, []);
 
   return (
-    <div className="relative h-screen min-h-[700px] w-full overflow-hidden bg-darkGreen">
-      <AnimatePresence mode="wait">
-        <motion.img 
-          key={current}
-          src={slides[current].src}
-          className="absolute inset-0 w-full h-full object-cover"
-          initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1.2, ease: "easeInOut" }}
-        />
-      </AnimatePresence>
-      
-      {/* Subtle dark overlay ONLY at bottom for text safety */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none"></div>
-      {/* Left side text area subtle bg */}
-      <div className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-black/50 to-transparent pointer-events-none"></div>
-      
-      {/* Content */}
-      <div className="container mx-auto px-8 relative z-10 h-full flex items-center pt-20">
-        <div className="max-w-xl">
-          <motion.p 
-             initial={{ opacity: 0, y: 20 }}
-             animate={{ opacity: 1, y: 0 }}
-             transition={{ duration: 0.8, delay: 0.2 }}
-             className="text-gold font-bold uppercase tracking-widest text-sm mb-4"
-          >
-             অরিজিনাল এবং প্রাকৃতিক — {slides[current].label}
-          </motion.p>
-          <motion.h1 
-             initial={{ opacity: 0, y: 20 }}
-             animate={{ opacity: 1, y: 0 }}
-             transition={{ duration: 0.8, delay: 0.4 }}
-             className="text-5xl md:text-7xl font-bold text-white leading-tight mb-8"
-          >
-            কৃষিই ভবিষ্যৎ <br/> উন্নত ফলন
-          </motion.h1>
-          <motion.p 
-             initial={{ opacity: 0, y: 20 }}
-             animate={{ opacity: 1, y: 0 }}
-             transition={{ duration: 0.8, delay: 0.6 }}
-             className="text-gray-300 text-lg mb-10 leading-relaxed max-w-lg"
-          >
-            সেরা মানের বীজ থেকে উৎপন্ন হয় সেরা ফসল। আপনার খামারের পুষ্টি ও সমৃদ্ধির জন্য বেছে নিন আমাদের পরীক্ষিত কৃষি বীজ।
-          </motion.p>
-          <motion.button 
-             initial={{ opacity: 0, y: 20 }}
-             animate={{ opacity: 1, y: 0 }}
-             transition={{ duration: 0.8, delay: 0.8 }}
-             className="bg-gold text-darkGreen px-8 py-4 rounded font-bold text-lg hover:bg-yellow-400 hover:scale-105 transition-all shadow-[0_4px_20px_rgba(235,180,85,0.4)]"
-          >
-            বিস্তারিত দেখুন
-          </motion.button>
-        </div>
-      </div>
+    <div className="w-full bg-darkGreen px-2 lg:px-4 py-4">
+      <div className="container mx-auto max-w-[1400px]">
+        {/* Main Hero Flex Layout */}
+        <div className="flex flex-col lg:flex-row gap-4 h-auto lg:h-[500px]">
+          
+          {/* Left Column: Carousel Slider (takes ~68% on large screen) */}
+          <div className="w-full lg:w-[68%] relative h-[300px] sm:h-[400px] lg:h-full rounded overflow-hidden bg-white/5 group shadow-lg border border-white/10 flex items-center justify-center">
+            <AnimatePresence mode="wait">
+              <motion.img 
+                key={current}
+                src={slides[current].src}
+                className="absolute inset-0 w-full h-full object-contain"
+                initial={{ opacity: 0, scale: 1.02 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.8 }}
+                onError={(e) => { e.target.onerror = null; e.target.src = '/cat1.png'; }}
+              />
+            </AnimatePresence>
 
-      {/* Slide Navigation Dots */}
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-3 z-10">
-        {slides.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setCurrent(i)}
-            className={`rounded-full transition-all duration-300 ${current === i ? 'w-8 h-3 bg-gold' : 'w-3 h-3 bg-white/40 hover:bg-white/70'}`}
-          />
-        ))}
+            {/* Subtle Gradient Overlay for Slide Label */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
+            
+            <div className="absolute bottom-10 left-8 z-10">
+              <span className="bg-gold text-darkGreen px-4 py-1.5 rounded-sm font-bold text-lg shadow-md uppercase tracking-wide inline-block mb-2">
+                {slides[current].label}
+              </span>
+            </div>
+
+            {/* Left/Right Arrows */}
+            <button className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2.5 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10" onClick={() => setCurrent((c) => (c - 1 + slides.length) % slides.length)}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <button className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2.5 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10" onClick={() => setCurrent((c) => (c + 1) % slides.length)}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+
+            {/* Pagination Dots */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+              {slides.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrent(i)}
+                  className={`rounded-full transition-all duration-300 ${current === i ? 'w-8 h-2 bg-gold' : 'w-2 h-2 bg-white/50 hover:bg-white/80'}`}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Right Column: Promotional Banner (takes ~32% on large screen) */}
+          <div className="w-full lg:w-[32%] relative h-[300px] lg:h-full rounded overflow-hidden bg-white/5 shadow-lg border border-gold/30 flex items-center justify-center hover:shadow-[0_0_20px_rgba(235,180,85,0.2)] transition-shadow">
+             <img 
+               src="/cabbage_poster.jpg" 
+               alt="Special Promotional Offer"
+               className="w-full h-full object-contain hover:scale-105 transition-transform duration-700"
+               onError={(e) => { e.target.style.display = 'none'; }}
+             />
+          </div>
+
+        </div>
       </div>
     </div>
   );

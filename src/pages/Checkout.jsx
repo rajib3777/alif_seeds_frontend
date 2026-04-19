@@ -310,9 +310,18 @@ export default function Checkout() {
                  ↓ আপনার ইনভয়েসটি অটোমেটিক ডাউনলোড হচ্ছে
               </p>
               
-              <p className="text-gray-200 mb-6 text-base leading-relaxed">
+              <p className="text-gray-200 mb-4 text-base leading-relaxed">
                 আপনাকে অসংখ্য ধন্যবাদ! আমাদের একজন প্রতিনিধি শীঘ্রই আপনার সাথে যোগাযোগ করে অর্ডারটি কনফার্ম করবেন।
               </p>
+
+              {/* Account Prompt */}
+              <div className="bg-gold/10 border border-gold/30 rounded-xl p-4 mb-5 text-left">
+                <p className="text-gold font-bold text-sm mb-1">🎉 একাউন্ট তৈরি করুন — ফ্রিতে!</p>
+                <p className="text-gray-300 text-xs mb-3">আপনার ফোন নম্বর <strong className="text-white">{form.phone}</strong> দিয়ে Sign Up করুন। অর্ডার হিস্ট্রি দেখুন এবং পরবর্তী অর্ডারে <strong className="text-gold">১০% ছাড়</strong> পান!</p>
+                <a href="/signup" className="inline-block bg-gold text-[#112a1f] font-bold text-xs px-4 py-2 rounded-lg hover:bg-yellow-300 transition">
+                  একাউন্ট তৈরি করুন →
+                </a>
+              </div>
               
               <div className="bg-black/20 rounded-xl p-5 mb-6 text-left border border-white/10 backdrop-blur-lg">
                 <p className="text-gold font-bold mb-2 border-b border-white/10 pb-2">অর্ডারের তথ্য:</p>

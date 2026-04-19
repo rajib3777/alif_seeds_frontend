@@ -331,9 +331,9 @@ export default function ChatBot() {
   const chatWindowStyle = {
     position: 'fixed',
     right: '24px',
-    bottom: '112px',       // just above chat button (96px) + 16px gap
+    bottom: window.innerWidth < 1024 ? '160px' : '90px', 
     width: '340px',
-    maxHeight: 'calc(100vh - 130px)', // never exceed viewport
+    maxHeight: 'calc(100vh - 180px)', 
     display: 'flex',
     flexDirection: 'column',
     borderRadius: '16px',
@@ -348,8 +348,8 @@ export default function ChatBot() {
       {/* Chat Bubble Button */}
       <button
         onClick={() => setIsOpen(o => !o)}
-        style={{ background: 'linear-gradient(135deg,#154316,#2a6f2e)', boxShadow: '0 6px 24px rgba(21,67,22,0.5)', bottom: '96px', right: '24px' }}
-        className="fixed z-50 w-14 h-14 rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-200"
+        className="fixed z-50 w-14 h-14 rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-200 bottom-24 lg:bottom-6 right-6"
+        style={{ background: 'linear-gradient(135deg,#154316,#2a6f2e)', boxShadow: '0 6px 24px rgba(21,67,22,0.5)' }}
         title="চ্যাট সহায়তা"
       >
         {isOpen
