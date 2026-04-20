@@ -354,7 +354,7 @@ export default function ChatBot() {
       >
         {isOpen
           ? <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12"/></svg>
-          : <svg className="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+          : <img src="https://i.pravatar.cc/150?img=47" alt="সুবর্ণা" className="w-full h-full object-cover rounded-full border-2 border-white/20" />
         }
         {hasUnread && !isOpen && (
           <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center font-bold animate-pulse">1</span>

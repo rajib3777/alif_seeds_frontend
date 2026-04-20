@@ -12,6 +12,7 @@ import SignupPage from './pages/SignupPage';
 import AccountPage from './pages/AccountPage';
 import TrackOrder from './pages/TrackOrder';
 import InventoryManager from './pages/InventoryManager';
+import AllCategories from './pages/AllCategories';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/product/:id" element={<ProductDetails />} />
+            <Route path="/all-categories" element={<AllCategories />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/login" element={<LoginPage />} />

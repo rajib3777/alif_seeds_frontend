@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useCartStore } from '../store/useCartStore';
 import { motion } from 'framer-motion';
+import { Star, Zap, Sparkles, CheckCircle2, Tag as TagIcon } from 'lucide-react';
 
 const ShoppingCartIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
@@ -81,11 +82,36 @@ export default function ProductDetails() {
               className="relative z-10 w-full rounded-2xl shadow-2xl border-4 border-midGreen object-cover max-h-[500px]"
               onError={(e) => { e.target.onerror = null; e.target.src = '/sorghum.jpg'; }}
             />
-            {product.is_special && (
-              <div className="absolute top-6 right-6 z-20 bg-gold text-darkGreen font-bold text-sm px-4 py-2 rounded-full shadow-lg uppercase">
-                স্পেশাল পণ্য
-              </div>
-            )}
+            {/* Badges */}
+            <div className="absolute top-6 left-0 z-20 flex flex-col gap-2 items-start">
+              {product.product_tags && product.product_tags.map((tag, idx) => {
+                const tagConfigs = {
+                  'Special': { color: 'bg-gold', icon: <Star className="w-3 h-3 fill-current" /> },
+                  'Uncommon': { color: 'bg-purple-500', icon: <Zap className="w-3 h-3" /> },
+                  'Offer': { color: 'bg-red-500 text-white', icon: <Sparkles className="w-3 h-3" /> },
+                  'Tested': { color: 'bg-cyan-500', icon: <CheckCircle2 className="w-3 h-3" /> },
+                  'New': { color: 'bg-green-500 text-white', icon: <TagIcon className="w-3 h-3" /> },
+                };
+                const config = tagConfigs[tag.name] || { color: 'bg-gray-500 text-white', icon: null };
+                const label = tag.display_name || tag.name === 'Special' ? 'সেরা বীজ' : 
+                              tag.name === 'Uncommon' ? 'আনকমন' : 
+                              tag.name === 'Offer' ? 'অফার' : 
+                              tag.name === 'Tested' ? 'পরিক্ষিত' : 
+                              tag.name === 'New' ? 'নতুন' : tag.name;
+
+                return (
+                  <div key={idx} className={`${config.color} text-darkGreen font-bold text-[10px] uppercase px-4 py-1.5 rounded-r-lg shadow-lg flex items-center gap-2`}>
+                    {config.icon}
+                    {label}
+                  </div>
+                );
+              })}
+              {product.is_special && (!product.product_tags || product.product_tags.length === 0) && (
+                <div className="bg-gold text-darkGreen font-bold text-sm px-4 py-2 rounded-r-lg shadow-lg uppercase">
+                  সেরা বীজ
+                </div>
+              )}
+            </div>
           </motion.div>
 
           {/* Product Info */}
