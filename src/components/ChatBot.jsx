@@ -367,9 +367,11 @@ export default function ChatBot() {
           {/* Header */}
           <div style={{ background: 'linear-gradient(135deg,#154316,#2a6f2e)', flexShrink: 0 }} className="px-4 py-3">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-lg flex-shrink-0">👩</div>
+              <div className="w-9 h-9 rounded-full bg-white/20 flex flex-shrink-0 overflow-hidden border-2 border-white/20">
+                <img src="https://i.pravatar.cc/150?img=47" alt="সুবর্ণা" className="w-full h-full object-cover" />
+              </div>
               <div className="flex-1 min-w-0">
-                <p className="text-white font-bold text-sm leading-tight">সুবর্ণা 👩</p>
+                <p className="text-white font-bold text-sm leading-tight">সুবর্ণা</p>
                 <div className="flex items-center gap-1 mt-0.5">
                   <div className="w-1.5 h-1.5 bg-green-300 rounded-full animate-pulse"></div>
                   <p className="text-green-200 text-xs text-nowrap">সবসময় আপনার পাশে 💚</p>
@@ -393,7 +395,11 @@ export default function ChatBot() {
             {messages.map(msg => (
               <div key={msg.id} className={`flex flex-col gap-1 ${msg.from === 'user' ? 'items-end' : 'items-start'}`}>
                 <div className="flex items-end gap-2">
-                  {msg.from === 'bot' && <div className="w-6 h-6 rounded-full bg-green-800 text-xs flex items-center justify-center flex-shrink-0 mb-0.5">👩</div>}
+                  {msg.from === 'bot' && (
+                    <div className="w-6 h-6 rounded-full border border-green-800 flex-shrink-0 mb-0.5 overflow-hidden">
+                      <img src="https://i.pravatar.cc/150?img=47" alt="সুবর্ণা" className="w-full h-full object-cover" />
+                    </div>
+                  )}
                   <div
                     className={`max-w-[82%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${msg.from === 'user' ? 'text-white rounded-br-sm' : 'bg-white text-gray-800 rounded-bl-sm shadow-sm border border-gray-100'}`}
                     style={msg.from === 'user' ? { background: 'linear-gradient(135deg,#154316,#2a6f2e)' } : {}}
@@ -414,7 +420,9 @@ export default function ChatBot() {
             ))}
             {isTyping && (
               <div className="flex items-end gap-2">
-                <div className="w-6 h-6 rounded-full bg-green-800 text-xs flex items-center justify-center">👩</div>
+                <div className="w-6 h-6 rounded-full border border-green-800 flex-shrink-0 overflow-hidden">
+                  <img src="https://i.pravatar.cc/150?img=47" alt="সুবর্ণা" className="w-full h-full object-cover" />
+                </div>
                 <div className="bg-white px-4 py-2.5 rounded-2xl rounded-bl-sm shadow-sm">
                   <div className="flex gap-1">{[0,150,300].map(d => <div key={d} className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{animationDelay:`${d}ms`}}/>)}</div>
                 </div>

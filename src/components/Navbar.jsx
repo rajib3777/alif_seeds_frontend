@@ -94,13 +94,13 @@ export default function Navbar() {
           {/* Right Icons */}
           <div className="flex items-center gap-4 md:gap-7 text-white shrink-0">
             {/* Hotline - Premium Style */}
-            <a href="tel:01334642219" className="hidden lg:flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-2 rounded-full hover:bg-gold hover:text-darkGreen transition-all duration-500 shadow-xl group">
-              <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center text-gold group-hover:bg-darkGreen/10 group-hover:text-darkGreen transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            <a href="tel:01334642219" className="hidden lg:flex items-center gap-3 bg-gradient-to-r from-orange-500 to-red-600 border border-orange-400 px-5 py-2 rounded-full hover:from-gold hover:to-yellow-500 hover:text-darkGreen transition-all duration-500 shadow-[0_4px_15px_rgba(249,115,22,0.4)] group text-white">
+              <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-white group-hover:bg-darkGreen/10 group-hover:text-darkGreen transition-colors animate-pulse">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
               </div>
               <div className="flex flex-col">
-                <span className="text-[9px] font-bold uppercase tracking-widest opacity-60">Helpline</span>
-                <span className="text-sm font-black font-serif">01334-642219</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest opacity-90 drop-shadow-sm">Helpline</span>
+                <span className="text-lg font-black tracking-wider drop-shadow-md">01334-642219</span>
               </div>
             </a>
 
@@ -143,12 +143,7 @@ export default function Navbar() {
                হোম
                <div className="absolute bottom-0 left-0 w-0 h-[3px] bg-gold transition-all duration-500 group-hover:w-full"></div>
             </Link>
-            
-            <Link to="/track-order" className="group px-8 py-4 hover:bg-gold/5 font-bold transition-all duration-300 uppercase text-[12px] tracking-[0.15em] flex items-center gap-2 border-r border-white/5 relative overflow-hidden">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-gold group-hover:scale-110 transition-transform"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-              অর্ডার ট্র্যাক
-              <div className="absolute bottom-0 left-0 w-0 h-[3px] bg-gold transition-all duration-500 group-hover:w-full"></div>
-            </Link>
+
 
             {categories.map((cat, idx) => (
               <div key={idx} className="group relative">
