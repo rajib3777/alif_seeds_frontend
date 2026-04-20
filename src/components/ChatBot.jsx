@@ -345,6 +345,18 @@ export default function ChatBot() {
 
   return (
     <>
+      {/* Call Bubble Button (Only visible when chat is closed) */}
+      {!isOpen && (
+        <a href="tel:01334642219"
+           className="fixed z-40 w-12 h-12 rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-200 bottom-40 lg:bottom-[5.5rem] right-7"
+           style={{ background: 'linear-gradient(135deg,#22c55e,#16a34a)', boxShadow: '0 6px 24px rgba(34,197,94,0.5)' }}
+           title="কল করুন">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+          </svg>
+        </a>
+      )}
+
       {/* Chat Bubble Button */}
       <button
         onClick={() => setIsOpen(o => !o)}
